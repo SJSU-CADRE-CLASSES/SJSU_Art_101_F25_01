@@ -22,10 +22,10 @@ A creative, interactive website that visualizes parking overcrowding at San Jose
 
 ## 🏗️ Garage Information
 
-- **Garage A**: 500 spots (40% base occupancy)
-- **Garage B**: 400 spots (50% base occupancy)  
-- **Garage C**: 600 spots (60% base occupancy - most popular)
-- **Garage D**: 350 spots (30% base occupancy)
+- **North Garage**: 500 spots (40% base occupancy)
+- **South Garage**: 400 spots (50% base occupancy)  
+- **South Campus Garage**: 600 spots (60% base occupancy - most popular)
+- **West Garage**: 350 spots (30% base occupancy)
 
 ## 🕐 Peak Times
 
@@ -55,7 +55,7 @@ A creative, interactive website that visualizes parking overcrowding at San Jose
 ## 🎯 Fun Facts
 
 - The average student spends 15 minutes looking for parking
-- Garage C is the most popular during finals week
+- South Campus Garage is the most popular during finals week
 - Tuesday 10 AM is peak parking chaos time
 - Some students arrive 2 hours early just for parking
 
