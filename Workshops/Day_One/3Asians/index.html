@@ -1,0 +1,393 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Top 10 Most Watched Animes of 2025</title>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            color: #333;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 40px;
+            color: white;
+        }
+
+        .header h1 {
+            font-size: 3rem;
+            margin-bottom: 10px;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+        }
+
+        .header p {
+            font-size: 1.2rem;
+            opacity: 0.9;
+        }
+
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 20px;
+            margin-bottom: 40px;
+        }
+
+        .stat-card {
+            background: white;
+            padding: 20px;
+            border-radius: 15px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+            text-align: center;
+            transition: transform 0.3s ease;
+        }
+
+        .stat-card:hover {
+            transform: translateY(-5px);
+        }
+
+        .stat-number {
+            font-size: 2.5rem;
+            font-weight: bold;
+            color: #667eea;
+            margin-bottom: 10px;
+        }
+
+        .stat-label {
+            color: #666;
+            font-size: 1rem;
+        }
+
+        .charts-container {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 30px;
+            margin-bottom: 40px;
+        }
+
+        .chart-card {
+            background: white;
+            padding: 25px;
+            border-radius: 15px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+        }
+
+        .chart-title {
+            text-align: center;
+            margin-bottom: 20px;
+            color: #333;
+            font-size: 1.3rem;
+        }
+
+        .anime-list {
+            background: white;
+            border-radius: 15px;
+            padding: 25px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+        }
+
+        .anime-item {
+            display: grid;
+            grid-template-columns: 60px 1fr auto auto;
+            gap: 20px;
+            align-items: center;
+            padding: 15px 0;
+            border-bottom: 1px solid #eee;
+            transition: background-color 0.3s ease;
+        }
+
+        .anime-item:hover {
+            background-color: #f8f9fa;
+        }
+
+        .anime-item:last-child {
+            border-bottom: none;
+        }
+
+        .anime-rank {
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            color: white;
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            font-size: 1.1rem;
+        }
+
+        .anime-info h3 {
+            color: #333;
+            margin-bottom: 5px;
+        }
+
+        .anime-genre {
+            color: #666;
+            font-size: 0.9rem;
+        }
+
+        .anime-rating {
+            background: #ffd700;
+            color: #333;
+            padding: 5px 10px;
+            border-radius: 20px;
+            font-weight: bold;
+            font-size: 0.9rem;
+        }
+
+        .anime-views {
+            color: #667eea;
+            font-weight: bold;
+            font-size: 1.1rem;
+        }
+
+        @media (max-width: 768px) {
+            .charts-container {
+                grid-template-columns: 1fr;
+            }
+            
+            .anime-item {
+                grid-template-columns: 50px 1fr;
+                gap: 15px;
+            }
+            
+            .anime-rating, .anime-views {
+                grid-column: 2;
+                justify-self: start;
+                margin-top: 5px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🎌 Top 10 Most Watched Animes of 2025</h1>
+            <p>Discover the most popular anime series that are dominating the charts this year</p>
+        </div>
+
+        <div class="stats-grid">
+            <div class="stat-card">
+                <div class="stat-number">2.8M</div>
+                <div class="stat-label">Total Views</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-number">9.2</div>
+                <div class="stat-label">Average Rating</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-number">6</div>
+                <div class="stat-label">Action Series</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-number">4</div>
+                <div class="stat-label">Fantasy Series</div>
+            </div>
+        </div>
+
+        <div class="charts-container">
+            <div class="chart-card">
+                <h3 class="chart-title">Viewership by Anime</h3>
+                <canvas id="viewsChart"></canvas>
+            </div>
+            <div class="chart-card">
+                <h3 class="chart-title">Genre Distribution</h3>
+                <canvas id="genreChart"></canvas>
+            </div>
+        </div>
+
+        <div class="anime-list">
+            <h3 class="chart-title">Top 10 Anime Rankings</h3>
+            <div id="animeList"></div>
+        </div>
+    </div>
+
+    <script>
+        // Anime data for 2025
+        const animeData = [
+            {
+                rank: 1,
+                name: "Demon Slayer: Hashira Training Arc",
+                genre: "Action, Fantasy",
+                rating: 9.4,
+                views: "450K",
+                color: "#FF6B6B"
+            },
+            {
+                rank: 2,
+                name: "My Hero Academia Season 7",
+                genre: "Action, Superhero",
+                rating: 9.2,
+                views: "420K",
+                color: "#4ECDC4"
+            },
+            {
+                rank: 3,
+                name: "One Piece: Egghead Arc",
+                genre: "Action, Adventure",
+                rating: 9.5,
+                views: "400K",
+                color: "#45B7D1"
+            },
+            {
+                rank: 4,
+                name: "Jujutsu Kaisen Season 3",
+                genre: "Action, Supernatural",
+                rating: 9.3,
+                views: "380K",
+                color: "#96CEB4"
+            },
+            {
+                rank: 5,
+                name: "Attack on Titan: Final Season Part 3",
+                genre: "Action, Drama",
+                rating: 9.6,
+                views: "350K",
+                color: "#FFEAA7"
+            },
+            {
+                rank: 6,
+                name: "Spy x Family Season 2",
+                genre: "Comedy, Action",
+                rating: 8.9,
+                views: "320K",
+                color: "#DDA0DD"
+            },
+            {
+                rank: 7,
+                name: "Black Clover: Sword of the Wizard King",
+                genre: "Action, Fantasy",
+                rating: 8.7,
+                views: "300K",
+                color: "#98D8C8"
+            },
+            {
+                rank: 8,
+                name: "Chainsaw Man Season 2",
+                genre: "Action, Horror",
+                rating: 9.1,
+                views: "280K",
+                color: "#F7DC6F"
+            },
+            {
+                rank: 9,
+                name: "Dr. Stone: New World",
+                genre: "Adventure, Sci-Fi",
+                rating: 8.8,
+                views: "260K",
+                color: "#BB8FCE"
+            },
+            {
+                rank: 10,
+                name: "The Promised Neverland Season 3",
+                genre: "Thriller, Horror",
+                rating: 8.5,
+                views: "240K",
+                color: "#85C1E9"
+            }
+        ];
+
+        // Create viewership chart
+        const viewsCtx = document.getElementById('viewsChart').getContext('2d');
+        new Chart(viewsCtx, {
+            type: 'bar',
+            data: {
+                labels: animeData.map(anime => anime.name.split(':')[0]),
+                datasets: [{
+                    label: 'Views (in thousands)',
+                    data: animeData.map(anime => parseInt(anime.views.replace('K', ''))),
+                    backgroundColor: animeData.map(anime => anime.color),
+                    borderColor: animeData.map(anime => anime.color),
+                    borderWidth: 1
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: {
+                        display: false
+                    }
+                },
+                scales: {
+                    y: {
+                        beginAtZero: true,
+                        title: {
+                            display: true,
+                            text: 'Views (K)'
+                        }
+                    }
+                }
+            }
+        });
+
+        // Create genre distribution chart
+        const genreCtx = document.getElementById('genreChart').getContext('2d');
+        const genreCount = {};
+        animeData.forEach(anime => {
+            anime.genre.split(', ').forEach(genre => {
+                genreCount[genre] = (genreCount[genre] || 0) + 1;
+            });
+        });
+
+        new Chart(genreCtx, {
+            type: 'doughnut',
+            data: {
+                labels: Object.keys(genreCount),
+                datasets: [{
+                    data: Object.values(genreCount),
+                    backgroundColor: [
+                        '#FF6B6B', '#4ECDC4', '#45B7D1', '#96CEB4',
+                        '#FFEAA7', '#DDA0DD', '#98D8C8', '#F7DC6F'
+                    ],
+                    borderWidth: 2,
+                    borderColor: '#fff'
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: {
+                        position: 'bottom'
+                    }
+                }
+            }
+        });
+
+        // Populate anime list
+        const animeListContainer = document.getElementById('animeList');
+        animeData.forEach(anime => {
+            const animeItem = document.createElement('div');
+            animeItem.className = 'anime-item';
+            animeItem.innerHTML = `
+                <div class="anime-rank">${anime.rank}</div>
+                <div class="anime-info">
+                    <h3>${anime.name}</h3>
+                    <div class="anime-genre">${anime.genre}</div>
+                </div>
+                <div class="anime-rating">⭐ ${anime.rating}</div>
+                <div class="anime-views">${anime.views} views</div>
+            `;
+            animeListContainer.appendChild(animeItem);
+        });
+    </script>
+</body>
+</html>
