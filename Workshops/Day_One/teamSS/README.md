@@ -38,9 +38,10 @@ A creative, interactive website that visualizes parking overcrowding at San Jose
 
 - **Modern UI**: Glassmorphism design with backdrop blur effects
 - **Color Coding**: 
-  - 🟢 Green: Available spots
-  - 🔴 Red: Occupied spots
-  - 🟠 Orange: Overcrowded spots (with pulsing animation)
+  - 🟢 Green: Available spots (0% occupancy - completely empty)
+  - 🟡 Yellow: Moderate occupancy (0-50% occupancy)
+  - 🔴 Red: High occupancy (50%+ occupancy)
+  - 🟠 Red with pulsing: Critical (90%+ occupancy)
 - **Responsive Grid**: Adapts to different screen sizes
 - **Smooth Animations**: CSS transitions and keyframe animations
 - **Custom Fonts**: Orbitron for headings, Exo 2 for body text
