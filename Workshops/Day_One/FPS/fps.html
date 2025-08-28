@@ -1,0 +1,594 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>3D World Map - Most Popular Websites</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/controls/OrbitControls.js"></script>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: #000;
+            color: white;
+            overflow: hidden;
+        }
+
+        #canvas-container {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: 1;
+        }
+
+        .controls-overlay {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            z-index: 10;
+            background: rgba(0, 0, 0, 0.7);
+            padding: 15px;
+            border-radius: 10px;
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            font-size: 0.9rem;
+            color: rgba(255, 255, 255, 0.8);
+        }
+
+        .controls-overlay h3 {
+            margin-bottom: 10px;
+            color: #667eea;
+            font-size: 1rem;
+        }
+
+        .control-item {
+            margin-bottom: 8px;
+            display: flex;
+            align-items: center;
+        }
+
+        .control-icon {
+            margin-right: 8px;
+            font-size: 1.1rem;
+        }
+
+        .loading {
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            z-index: 100;
+            color: white;
+            font-size: 1.5rem;
+            text-align: center;
+            background: rgba(0, 0, 0, 0.8);
+            padding: 30px;
+            border-radius: 15px;
+            backdrop-filter: blur(10px);
+        }
+
+        .loading::after {
+            content: '';
+            display: inline-block;
+            width: 20px;
+            height: 20px;
+            border: 3px solid rgba(255,255,255,0.3);
+            border-radius: 50%;
+            border-top-color: #667eea;
+            animation: spin 1s ease-in-out infinite;
+            margin-left: 10px;
+        }
+
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+
+        .info-panel {
+            position: fixed;
+            bottom: 20px;
+            left: 20px;
+            z-index: 10;
+            background: rgba(0, 0, 0, 0.8);
+            padding: 20px;
+            border-radius: 15px;
+            backdrop-filter: blur(15px);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            max-width: 300px;
+            transform: translateY(100%);
+            transition: transform 0.3s ease;
+        }
+
+        .info-panel.show {
+            transform: translateY(0);
+        }
+
+        .info-panel h3 {
+            color: #667eea;
+            margin-bottom: 10px;
+            font-size: 1.2rem;
+        }
+
+        .info-panel p {
+            margin-bottom: 8px;
+            font-size: 0.9rem;
+            color: rgba(255, 255, 255, 0.9);
+        }
+
+        .legend {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            z-index: 10;
+            background: rgba(0, 0, 0, 0.8);
+            padding: 15px;
+            border-radius: 10px;
+            backdrop-filter: blur(15px);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            font-size: 0.8rem;
+        }
+
+        .legend h4 {
+            color: #667eea;
+            margin-bottom: 8px;
+            font-size: 0.9rem;
+        }
+
+        .legend-item {
+            display: flex;
+            align-items: center;
+            margin-bottom: 5px;
+        }
+
+        .legend-color {
+            width: 10px;
+            height: 10px;
+            border-radius: 50%;
+            margin-right: 8px;
+        }
+
+        @media (max-width: 768px) {
+            .controls-overlay {
+                top: 10px;
+                right: 10px;
+                padding: 10px;
+                font-size: 0.8rem;
+            }
+
+            .info-panel {
+                bottom: 10px;
+                left: 10px;
+                max-width: 250px;
+                padding: 15px;
+            }
+
+            .legend {
+                bottom: 10px;
+                right: 10px;
+                padding: 10px;
+                font-size: 0.7rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div id="canvas-container"></div>
+    
+    <div class="loading">Loading 3D World Map...</div>
+
+    <div class="controls-overlay">
+        <h3>🌍 Controls</h3>
+        <div class="control-item">
+            <span class="control-icon">🖱️</span>
+            <span>Drag to rotate</span>
+        </div>
+        <div class="control-item">
+            <span class="control-icon">🔍</span>
+            <span>Scroll to zoom</span>
+        </div>
+        <div class="control-item">
+            <span class="control-icon">📱</span>
+            <span>Touch to interact</span>
+        </div>
+        <div class="control-item">
+            <span class="control-icon">👆</span>
+            <span>Click markers for info</span>
+        </div>
+    </div>
+
+    <div class="info-panel" id="infoPanel">
+        <h3 id="countryName">Select a Country</h3>
+        <p><strong>Website:</strong> <span id="websiteName">-</span></p>
+        <p><strong>Category:</strong> <span id="websiteCategory">-</span></p>
+        <p><strong>Popularity:</strong> <span id="popularity">-</span></p>
+    </div>
+
+    <div class="legend">
+        <h4>Website Categories</h4>
+        <div class="legend-item">
+            <div class="legend-color" style="background-color: #4285f4;"></div>
+            <span>Search Engine</span>
+        </div>
+        <div class="legend-item">
+            <div class="legend-color" style="background-color: #03c75a;"></div>
+            <span>Portal</span>
+        </div>
+        <div class="legend-item">
+            <div class="legend-color" style="background-color: #ff0000;"></div>
+            <span>Regional</span>
+        </div>
+    </div>
+
+    <script>
+        // Country data with coordinates and additional info
+        const countryData = [
+            { country: 'United States', website: 'Google', category: 'Search Engine', color: 0x4285f4, lat: 39.8283, lng: -98.5795, popularity: 'Most Popular' },
+            { country: 'China', website: 'Baidu', category: 'Search Engine', color: 0x2932e1, lat: 35.8617, lng: 104.1954, popularity: 'Most Popular' },
+            { country: 'India', website: 'Google', category: 'Search Engine', color: 0x4285f4, lat: 20.5937, lng: 78.9629, popularity: 'Most Popular' },
+            { country: 'Brazil', website: 'Google', category: 'Search Engine', color: 0x4285f4, lat: -14.2350, lng: -51.9253, popularity: 'Most Popular' },
+            { country: 'Russia', website: 'Yandex', category: 'Search Engine', color: 0xff0000, lat: 61.5240, lng: 105.3188, popularity: 'Most Popular' },
+            { country: 'Japan', website: 'Google', category: 'Search Engine', color: 0x4285f4, lat: 36.2048, lng: 138.2529, popularity: 'Most Popular' },
+            { country: 'Germany', website: 'Google', category: 'Search Engine', color: 0x4285f4, lat: 51.1657, lng: 10.4515, popularity: 'Most Popular' },
+            { country: 'United Kingdom', website: 'Google', category: 'Search Engine', color: 0x4285f4, lat: 55.3781, lng: -3.4360, popularity: 'Most Popular' },
+            { country: 'France', website: 'Google', category: 'Search Engine', color: 0x4285f4, lat: 46.2276, lng: 2.2137, popularity: 'Most Popular' },
+            { country: 'Italy', website: 'Google', category: 'Search Engine', color: 0x4285f4, lat: 41.8719, lng: 12.5674, popularity: 'Most Popular' },
+            { country: 'Canada', website: 'Google', category: 'Search Engine', color: 0x4285f4, lat: 56.1304, lng: -106.3468, popularity: 'Most Popular' },
+            { country: 'South Korea', website: 'Naver', category: 'Portal', color: 0x03c75a, lat: 35.9078, lng: 127.7669, popularity: 'Most Popular' },
+            { country: 'Spain', website: 'Google', category: 'Search Engine', color: 0x4285f4, lat: 40.4637, lng: -3.7492, popularity: 'Most Popular' },
+            { country: 'Australia', website: 'Google', category: 'Search Engine', color: 0x4285f4, lat: -25.2744, lng: 133.7751, popularity: 'Most Popular' },
+            { country: 'Mexico', website: 'Google', category: 'Search Engine', color: 0x4285f4, lat: 23.6345, lng: -102.5528, popularity: 'Most Popular' },
+            { country: 'Indonesia', website: 'Google', category: 'Search Engine', color: 0x4285f4, lat: -0.7893, lng: 113.9213, popularity: 'Most Popular' },
+            { country: 'Netherlands', website: 'Google', category: 'Search Engine', color: 0x4285f4, lat: 52.1326, lng: 5.2913, popularity: 'Most Popular' },
+            { country: 'Saudi Arabia', website: 'Google', category: 'Search Engine', color: 0x4285f4, lat: 23.8859, lng: 45.0792, popularity: 'Most Popular' },
+            { country: 'Turkey', website: 'Google', category: 'Search Engine', color: 0x4285f4, lat: 38.9637, lng: 35.2433, popularity: 'Most Popular' },
+            { country: 'Switzerland', website: 'Google', category: 'Search Engine', color: 0x4285f4, lat: 46.8182, lng: 8.2275, popularity: 'Most Popular' },
+            { country: 'Poland', website: 'Google', category: 'Search Engine', color: 0x4285f4, lat: 51.9194, lng: 19.1451, popularity: 'Most Popular' },
+            { country: 'Argentina', website: 'Google', category: 'Search Engine', color: 0x4285f4, lat: -38.4161, lng: -63.6167, popularity: 'Most Popular' },
+            { country: 'Sweden', website: 'Google', category: 'Search Engine', color: 0x4285f4, lat: 60.1282, lng: 18.6435, popularity: 'Most Popular' },
+            { country: 'Belgium', website: 'Google', category: 'Search Engine', color: 0x4285f4, lat: 50.8503, lng: 4.3517, popularity: 'Most Popular' },
+            { country: 'Thailand', website: 'Google', category: 'Search Engine', color: 0x4285f4, lat: 15.8700, lng: 100.9925, popularity: 'Most Popular' },
+            { country: 'Austria', website: 'Google', category: 'Search Engine', color: 0x4285f4, lat: 47.5162, lng: 14.5501, popularity: 'Most Popular' },
+            { country: 'Norway', website: 'Google', category: 'Search Engine', color: 0x4285f4, lat: 60.4720, lng: 8.4689, popularity: 'Most Popular' },
+            { country: 'United Arab Emirates', website: 'Google', category: 'Search Engine', color: 0x4285f4, lat: 23.4241, lng: 53.8478, popularity: 'Most Popular' },
+            { country: 'Israel', website: 'Google', category: 'Search Engine', color: 0x4285f4, lat: 31.0461, lng: 34.8516, popularity: 'Most Popular' },
+            { country: 'Singapore', website: 'Google', category: 'Search Engine', color: 0x4285f4, lat: 1.3521, lng: 103.8198, popularity: 'Most Popular' },
+            { country: 'Malaysia', website: 'Google', category: 'Search Engine', color: 0x4285f4, lat: 4.2105, lng: 108.9758, popularity: 'Most Popular' },
+            { country: 'Denmark', website: 'Google', category: 'Search Engine', color: 0x4285f4, lat: 56.2639, lng: 9.5018, popularity: 'Most Popular' },
+            { country: 'Philippines', website: 'Google', category: 'Search Engine', color: 0x4285f4, lat: 12.8797, lng: 121.7740, popularity: 'Most Popular' },
+            { country: 'Egypt', website: 'Google', category: 'Search Engine', color: 0x4285f4, lat: 26.8206, lng: 30.8025, popularity: 'Most Popular' },
+            { country: 'Finland', website: 'Google', category: 'Search Engine', color: 0x4285f4, lat: 61.9241, lng: 25.7482, popularity: 'Most Popular' },
+            { country: 'Chile', website: 'Google', category: 'Search Engine', color: 0x4285f4, lat: -35.6751, lng: -71.5430, popularity: 'Most Popular' },
+            { country: 'Pakistan', website: 'Google', category: 'Search Engine', color: 0x4285f4, lat: 30.3753, lng: 69.3451, popularity: 'Most Popular' },
+            { country: 'Ireland', website: 'Google', category: 'Search Engine', color: 0x4285f4, lat: 53.1424, lng: -7.6921, popularity: 'Most Popular' },
+            { country: 'Czech Republic', website: 'Google', category: 'Search Engine', color: 0x4285f4, lat: 49.8175, lng: 15.4730, popularity: 'Most Popular' },
+            { country: 'Portugal', website: 'Google', category: 'Search Engine', color: 0x4285f4, lat: 39.3999, lng: -8.2245, popularity: 'Most Popular' },
+            { country: 'Greece', website: 'Google', category: 'Search Engine', color: 0x4285f4, lat: 39.0742, lng: 21.8243, popularity: 'Most Popular' },
+            { country: 'New Zealand', website: 'Google', category: 'Search Engine', color: 0x4285f4, lat: -40.9006, lng: 174.8860, popularity: 'Most Popular' },
+            { country: 'Romania', website: 'Google', category: 'Search Engine', color: 0x4285f4, lat: 45.9432, lng: 24.9668, popularity: 'Most Popular' },
+            { country: 'Hungary', website: 'Google', category: 'Search Engine', color: 0x4285f4, lat: 47.1625, lng: 19.5033, popularity: 'Most Popular' },
+            { country: 'Vietnam', website: 'Google', category: 'Search Engine', color: 0x4285f4, lat: 14.0583, lng: 108.2772, popularity: 'Most Popular' },
+            { country: 'Bangladesh', website: 'Google', category: 'Search Engine', color: 0x4285f4, lat: 23.6850, lng: 90.3563, popularity: 'Most Popular' },
+            { country: 'Ukraine', website: 'Google', category: 'Search Engine', color: 0x4285f4, lat: 48.3794, lng: 31.1656, popularity: 'Most Popular' },
+            { country: 'Morocco', website: 'Google', category: 'Search Engine', color: 0x4285f4, lat: 31.7917, lng: -7.0926, popularity: 'Most Popular' },
+            { country: 'Slovakia', website: 'Google', category: 'Search Engine', color: 0x4285f4, lat: 48.6690, lng: 19.6990, popularity: 'Most Popular' },
+            { country: 'Bulgaria', website: 'Google', category: 'Search Engine', color: 0x4285f4, lat: 42.7339, lng: 25.4858, popularity: 'Most Popular' },
+            { country: 'Croatia', website: 'Google', category: 'Search Engine', color: 0x4285f4, lat: 45.1000, lng: 15.2000, popularity: 'Most Popular' },
+            { country: 'Tunisia', website: 'Google', category: 'Search Engine', color: 0x4285f4, lat: 33.8869, lng: 9.5375, popularity: 'Most Popular' },
+            { country: 'Lebanon', website: 'Google', category: 'Search Engine', color: 0x4285f4, lat: 33.8547, lng: 35.8623, popularity: 'Most Popular' },
+            { country: 'Slovenia', website: 'Google', category: 'Search Engine', color: 0x4285f4, lat: 46.0569, lng: 14.5058, popularity: 'Most Popular' },
+            { country: 'Lithuania', website: 'Google', category: 'Search Engine', color: 0x4285f4, lat: 55.1694, lng: 23.8813, popularity: 'Most Popular' },
+            { country: 'Costa Rica', website: 'Google', category: 'Search Engine', color: 0x4285f4, lat: 9.9281, lng: -84.0907, popularity: 'Most Popular' },
+            { country: 'Uruguay', website: 'Google', category: 'Search Engine', color: 0x4285f4, lat: -32.5228, lng: -55.7658, popularity: 'Most Popular' },
+            { country: 'Estonia', website: 'Google', category: 'Search Engine', color: 0x4285f4, lat: 58.5953, lng: 25.0136, popularity: 'Most Popular' },
+            { country: 'Panama', website: 'Google', category: 'Search Engine', color: 0x4285f4, lat: 8.5380, lng: -80.7821, popularity: 'Most Popular' },
+            { country: 'Latvia', website: 'Google', category: 'Search Engine', color: 0x4285f4, lat: 56.8796, lng: 24.6032, popularity: 'Most Popular' },
+            { country: 'Luxembourg', website: 'Google', category: 'Search Engine', color: 0x4285f4, lat: 49.8153, lng: 6.1296, popularity: 'Most Popular' },
+            { country: 'Iceland', website: 'Google', category: 'Search Engine', color: 0x4285f4, lat: 64.9631, lng: -19.0208, popularity: 'Most Popular' },
+            { country: 'Cyprus', website: 'Google', category: 'Search Engine', color: 0x4285f4, lat: 35.1264, lng: 33.4299, popularity: 'Most Popular' },
+            { country: 'Malta', website: 'Google', category: 'Search Engine', color: 0x4285f4, lat: 35.9375, lng: 14.3754, popularity: 'Most Popular' },
+            { country: 'Bahrain', website: 'Google', category: 'Search Engine', color: 0x4285f4, lat: 26.0667, lng: 50.5577, popularity: 'Most Popular' },
+            { country: 'Qatar', website: 'Google', category: 'Search Engine', color: 0x4285f4, lat: 25.3548, lng: 51.1839, popularity: 'Most Popular' },
+            { country: 'Kuwait', website: 'Google', category: 'Search Engine', color: 0x4285f4, lat: 29.3117, lng: 47.4818, popularity: 'Most Popular' },
+            { country: 'Oman', website: 'Google', category: 'Search Engine', color: 0x4285f4, lat: 21.4735, lng: 55.9754, popularity: 'Most Popular' },
+            { country: 'Jordan', website: 'Google', category: 'Search Engine', color: 0x4285f4, lat: 30.5852, lng: 36.2384, popularity: 'Most Popular' },
+            { country: 'Albania', website: 'Google', category: 'Search Engine', color: 0x4285f4, lat: 41.1533, lng: 20.1683, popularity: 'Most Popular' },
+            { country: 'Armenia', website: 'Google', category: 'Search Engine', color: 0x4285f4, lat: 40.0691, lng: 45.0382, popularity: 'Most Popular' },
+            { country: 'Georgia', website: 'Google', category: 'Search Engine', color: 0x4285f4, lat: 42.3154, lng: 43.3569, popularity: 'Most Popular' },
+            { country: 'Moldova', website: 'Google', category: 'Search Engine', color: 0x4285f4, lat: 47.4116, lng: 28.3699, popularity: 'Most Popular' },
+            { country: 'North Macedonia', website: 'Google', category: 'Search Engine', color: 0x4285f4, lat: 41.6086, lng: 21.7453, popularity: 'Most Popular' },
+            { country: 'Bosnia and Herzegovina', website: 'Google', category: 'Search Engine', color: 0x4285f4, lat: 43.9159, lng: 17.6791, popularity: 'Most Popular' },
+            { country: 'Montenegro', website: 'Google', category: 'Search Engine', color: 0x4285f4, lat: 42.7087, lng: 19.3744, popularity: 'Most Popular' },
+            { country: 'Kosovo', website: 'Google', category: 'Search Engine', color: 0x4285f4, lat: 42.6026, lng: 20.9030, popularity: 'Most Popular' },
+            { country: 'Serbia', website: 'Google', category: 'Search Engine', color: 0x4285f4, lat: 44.0165, lng: 21.0059, popularity: 'Most Popular' },
+            { country: 'Belarus', website: 'Google', category: 'Search Engine', color: 0x4285f4, lat: 53.7098, lng: 27.9534, popularity: 'Most Popular' },
+            { country: 'Kazakhstan', website: 'Google', category: 'Search Engine', color: 0x4285f4, lat: 48.0196, lng: 66.9237, popularity: 'Most Popular' },
+            { country: 'Azerbaijan', website: 'Google', category: 'Search Engine', color: 0x4285f4, lat: 40.1431, lng: 47.5769, popularity: 'Most Popular' },
+            { country: 'Uzbekistan', website: 'Google', category: 'Search Engine', color: 0x4285f4, lat: 41.3775, lng: 64.5853, popularity: 'Most Popular' },
+            { country: 'Kyrgyzstan', website: 'Google', category: 'Search Engine', color: 0x4285f4, lat: 41.2044, lng: 74.7661, popularity: 'Most Popular' },
+            { country: 'Tajikistan', website: 'Google', category: 'Search Engine', color: 0x4285f4, lat: 38.5358, lng: 71.0965, popularity: 'Most Popular' },
+            { country: 'Turkmenistan', website: 'Google', category: 'Search Engine', color: 0x4285f4, lat: 38.9697, lng: 59.5563, popularity: 'Most Popular' },
+            { country: 'Mongolia', website: 'Google', category: 'Search Engine', color: 0x4285f4, lat: 46.8625, lng: 103.8467, popularity: 'Most Popular' },
+            { country: 'Nepal', website: 'Google', category: 'Search Engine', color: 0x4285f4, lat: 28.3949, lng: 84.1240, popularity: 'Most Popular' },
+            { country: 'Sri Lanka', website: 'Google', category: 'Search Engine', color: 0x4285f4, lat: 7.8731, lng: 80.7718, popularity: 'Most Popular' },
+            { country: 'Myanmar', website: 'Google', category: 'Search Engine', color: 0x4285f4, lat: 21.9162, lng: 95.9560, popularity: 'Most Popular' },
+            { country: 'Cambodia', website: 'Google', category: 'Search Engine', color: 0x4285f4, lat: 12.5657, lng: 104.9910, popularity: 'Most Popular' },
+            { country: 'Laos', website: 'Google', category: 'Search Engine', color: 0x4285f4, lat: 19.8563, lng: 102.4955, popularity: 'Most Popular' },
+            { country: 'Brunei', website: 'Google', category: 'Search Engine', color: 0x4285f4, lat: 4.5353, lng: 114.7277, popularity: 'Most Popular' },
+            { country: 'East Timor', website: 'Google', category: 'Search Engine', color: 0x4285f4, lat: -8.8742, lng: 125.7275, popularity: 'Most Popular' },
+            { country: 'Papua New Guinea', website: 'Google', category: 'Search Engine', color: 0x4285f4, lat: -6.3150, lng: 143.9555, popularity: 'Most Popular' },
+            { country: 'Fiji', website: 'Google', category: 'Search Engine', color: 0x4285f4, lat: -17.7134, lng: 178.0650, popularity: 'Most Popular' },
+            { country: 'Solomon Islands', website: 'Google', category: 'Search Engine', color: 0x4285f4, lat: -9.6457, lng: 160.1562, popularity: 'Most Popular' },
+            { country: 'Vanuatu', website: 'Google', category: 'Search Engine', color: 0x4285f4, lat: -15.3767, lng: 166.9592, popularity: 'Most Popular' },
+            { country: 'New Caledonia', website: 'Google', category: 'Search Engine', color: 0x4285f4, lat: -20.9043, lng: 165.6180, popularity: 'Most Popular' },
+            { country: 'French Polynesia', website: 'Google', category: 'Search Engine', color: 0x4285f4, lat: -17.6797, lng: -149.4068, popularity: 'Most Popular' },
+            { country: 'Samoa', website: 'Google', category: 'Search Engine', color: 0x4285f4, lat: -13.7590, lng: -172.1046, popularity: 'Most Popular' },
+            { country: 'Tonga', website: 'Google', category: 'Search Engine', color: 0x4285f4, lat: -21.1790, lng: -175.1982, popularity: 'Most Popular' },
+            { country: 'Kiribati', website: 'Google', category: 'Search Engine', color: 0x4285f4, lat: -3.3704, lng: -168.7340, popularity: 'Most Popular' },
+            { country: 'Micronesia', website: 'Google', category: 'Search Engine', color: 0x4285f4, lat: 7.4256, lng: 150.5508, popularity: 'Most Popular' },
+            { country: 'Palau', website: 'Google', category: 'Search Engine', color: 0x4285f4, lat: 7.5150, lng: 134.5825, popularity: 'Most Popular' },
+            { country: 'Marshall Islands', website: 'Google', category: 'Search Engine', color: 0x4285f4, lat: 7.1315, lng: 171.1845, popularity: 'Most Popular' },
+            { country: 'Nauru', website: 'Google', category: 'Search Engine', color: 0x4285f4, lat: -0.5228, lng: 166.9315, popularity: 'Most Popular' },
+            { country: 'Tuvalu', website: 'Google', category: 'Search Engine', color: 0x4285f4, lat: -7.1095, lng: 177.6493, popularity: 'Most Popular' }
+        ];
+
+        // Three.js setup
+        let scene, camera, renderer, controls;
+        let markers = [];
+        let animationId;
+        let raycaster, mouse;
+
+        function init() {
+            // Scene setup
+            scene = new THREE.Scene();
+            scene.fog = new THREE.Fog(0x000000, 100, 300);
+
+            // Camera setup
+            camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
+            camera.position.set(0, 0, 120);
+
+            // Renderer setup
+            renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
+            renderer.setSize(window.innerWidth, window.innerHeight);
+            renderer.setClearColor(0x000000, 0);
+            renderer.shadowMap.enabled = true;
+            renderer.shadowMap.type = THREE.PCFSoftShadowMap;
+            document.getElementById('canvas-container').appendChild(renderer.domElement);
+
+            // Controls
+            controls = new THREE.OrbitControls(camera, renderer.domElement);
+            controls.enableDamping = true;
+            controls.dampingFactor = 0.05;
+            controls.maxDistance = 200;
+            controls.minDistance = 50;
+            controls.autoRotate = true;
+            controls.autoRotateSpeed = 0.3;
+
+            // Raycaster for mouse interaction
+            raycaster = new THREE.Raycaster();
+            mouse = new THREE.Vector2();
+
+            // Lighting
+            const ambientLight = new THREE.AmbientLight(0x404040, 0.6);
+            scene.add(ambientLight);
+
+            const directionalLight = new THREE.DirectionalLight(0xffffff, 0.8);
+            directionalLight.position.set(100, 100, 100);
+            directionalLight.castShadow = true;
+            scene.add(directionalLight);
+
+            const pointLight = new THREE.PointLight(0x667eea, 1, 200);
+            pointLight.position.set(-100, 100, -100);
+            scene.add(pointLight);
+
+            // Create world sphere with map texture
+            createWorldSphere();
+
+            // Create country markers
+            createCountryMarkers();
+
+            // Add event listeners
+            addEventListeners();
+
+            // Start animation
+            animate();
+
+            // Hide loading screen
+            document.querySelector('.loading').style.display = 'none';
+        }
+
+        function createWorldSphere() {
+            const geometry = new THREE.SphereGeometry(50, 64, 64);
+            
+            // Load world map texture
+            const textureLoader = new THREE.TextureLoader();
+            textureLoader.load('https://raw.githubusercontent.com/mrdoob/three.js/dev/examples/textures/planets/earth_atmos_2048.jpg', function(texture) {
+                const material = new THREE.MeshPhongMaterial({
+                    map: texture,
+                    transparent: true,
+                    opacity: 0.9
+                });
+                const worldSphere = new THREE.Mesh(geometry, material);
+                scene.add(worldSphere);
+            });
+        }
+
+        function createCountryMarkers() {
+            const radius = 50.5; // Slightly smaller than the Earth sphere to sit on surface
+
+            countryData.forEach((country, index) => {
+                // Convert lat/lng to 3D coordinates with proper orientation
+                // Note: The Earth texture has different coordinate system than standard lat/lng
+                const lat = country.lat * Math.PI / 180;
+                const lng = country.lng * Math.PI / 180;
+
+                // Adjust longitude to match the texture orientation
+                // The texture appears to be rotated, so we need to adjust
+                const adjustedLng = lng - Math.PI / 2; // Rotate 90 degrees
+
+                const x = radius * Math.cos(lat) * Math.cos(adjustedLng);
+                const y = radius * Math.sin(lat);
+                const z = radius * Math.cos(lat) * Math.sin(adjustedLng);
+
+                // Create marker sphere
+                const geometry = new THREE.SphereGeometry(0.3, 8, 8);
+                const material = new THREE.MeshPhongMaterial({
+                    color: country.color,
+                    transparent: true,
+                    opacity: 0.9,
+                    shininess: 100
+                });
+
+                const marker = new THREE.Mesh(geometry, material);
+                marker.position.set(x, y, z);
+                marker.castShadow = true;
+                marker.userData = country;
+
+                // Add glow effect
+                const glowGeometry = new THREE.SphereGeometry(0.5, 8, 8);
+                const glowMaterial = new THREE.MeshBasicMaterial({
+                    color: country.color,
+                    transparent: true,
+                    opacity: 0.4
+                });
+                const glow = new THREE.Mesh(glowGeometry, glowMaterial);
+                glow.position.set(x, y, z);
+                scene.add(glow);
+
+                // Add country name label
+                const canvas = document.createElement('canvas');
+                const context = canvas.getContext('2d');
+                canvas.width = 256;
+                canvas.height = 64;
+                context.fillStyle = '#ffffff';
+                context.font = 'bold 14px Arial';
+                context.textAlign = 'center';
+                context.fillText(country.country, 128, 32);
+
+                const texture = new THREE.CanvasTexture(canvas);
+                const labelMaterial = new THREE.SpriteMaterial({ 
+                    map: texture,
+                    transparent: true,
+                    opacity: 0.8
+                });
+                const label = new THREE.Sprite(labelMaterial);
+                label.position.set(x * 1.05, y * 1.05, z * 1.05);
+                label.scale.set(6, 1.5, 1);
+                label.userData = country;
+                scene.add(label);
+
+                markers.push({ 
+                    mesh: marker, 
+                    glow: glow, 
+                    label: label, 
+                    originalPosition: { x, y, z },
+                    country: country
+                });
+                scene.add(marker);
+            });
+        }
+
+        function addEventListeners() {
+            // Mouse click event
+            renderer.domElement.addEventListener('click', onMouseClick);
+            
+            // Mouse move event for hover effects
+            renderer.domElement.addEventListener('mousemove', onMouseMove);
+            
+            // Window resize
+            window.addEventListener('resize', onWindowResize);
+        }
+
+        function onMouseClick(event) {
+            mouse.x = (event.clientX / window.innerWidth) * 2 - 1;
+            mouse.y = -(event.clientY / window.innerHeight) * 2 + 1;
+
+            raycaster.setFromCamera(mouse, camera);
+            const intersects = raycaster.intersectObjects(markers.map(m => m.mesh));
+
+            if (intersects.length > 0) {
+                const country = intersects[0].object.userData;
+                showCountryInfo(country);
+            }
+        }
+
+        function onMouseMove(event) {
+            mouse.x = (event.clientX / window.innerWidth) * 2 - 1;
+            mouse.y = -(event.clientY / window.innerHeight) * 2 + 1;
+
+            raycaster.setFromCamera(mouse, camera);
+            const intersects = raycaster.intersectObjects(markers.map(m => m.mesh));
+
+            // Reset all markers
+            markers.forEach(marker => {
+                marker.mesh.scale.set(1, 1, 1);
+                marker.glow.scale.set(1, 1, 1);
+            });
+
+            // Highlight hovered marker
+            if (intersects.length > 0) {
+                const marker = markers.find(m => m.mesh === intersects[0].object);
+                if (marker) {
+                    marker.mesh.scale.set(1.5, 1.5, 1.5);
+                    marker.glow.scale.set(1.5, 1.5, 1.5);
+                }
+            }
+        }
+
+        function showCountryInfo(country) {
+            document.getElementById('countryName').textContent = country.country;
+            document.getElementById('websiteName').textContent = country.website;
+            document.getElementById('websiteCategory').textContent = country.category;
+            document.getElementById('popularity').textContent = country.popularity;
+            
+            const infoPanel = document.getElementById('infoPanel');
+            infoPanel.classList.add('show');
+            
+            // Hide panel after 5 seconds
+            setTimeout(() => {
+                infoPanel.classList.remove('show');
+            }, 5000);
+        }
+
+        function onWindowResize() {
+            camera.aspect = window.innerWidth / window.innerHeight;
+            camera.updateProjectionMatrix();
+            renderer.setSize(window.innerWidth, window.innerHeight);
+        }
+
+        function animate() {
+            animationId = requestAnimationFrame(animate);
+
+            // Animate markers
+            const time = Date.now() * 0.001;
+            markers.forEach((marker, index) => {
+                const offset = index * 0.1;
+                marker.mesh.position.x = marker.originalPosition.x + Math.sin(time + offset) * 0.2;
+                marker.mesh.position.y = marker.originalPosition.y + Math.cos(time + offset) * 0.2;
+                marker.mesh.position.z = marker.originalPosition.z + Math.sin(time * 0.5 + offset) * 0.2;
+                
+                marker.glow.position.copy(marker.mesh.position);
+                marker.label.position.copy(marker.mesh.position);
+                marker.label.position.multiplyScalar(1.05);
+                
+                marker.mesh.rotation.x += 0.02;
+                marker.mesh.rotation.y += 0.02;
+            });
+
+            controls.update();
+            renderer.render(scene, camera);
+        }
+
+        // Initialize everything when DOM is loaded
+        document.addEventListener('DOMContentLoaded', function() {
+            init();
+        });
+    </script>
+</body>
+</html>
