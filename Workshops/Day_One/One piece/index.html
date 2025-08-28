@@ -13,9 +13,43 @@
 
         body {
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            background: linear-gradient(135deg, #1e3c72 0%, #2a5298 100%);
+            background: linear-gradient(135deg, #ff6b9d 0%, #c44569 25%, #f093fb 50%, #f5576c 75%, #4facfe 100%);
+            background-size: 400% 400%;
+            animation: gradientShift 15s ease infinite;
             color: #333;
             line-height: 1.6;
+            overflow-x: hidden;
+        }
+
+        @keyframes gradientShift {
+            0% { background-position: 0% 50%; }
+            50% { background-position: 100% 50%; }
+            100% { background-position: 0% 50%; }
+        }
+
+        /* Floating particles */
+        .particles {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: 1;
+        }
+
+        .particle {
+            position: absolute;
+            width: 10px;
+            height: 10px;
+            background: rgba(255, 255, 255, 0.6);
+            border-radius: 50%;
+            animation: float 6s ease-in-out infinite;
+        }
+
+        @keyframes float {
+            0%, 100% { transform: translateY(0px) rotate(0deg); }
+            50% { transform: translateY(-20px) rotate(180deg); }
         }
 
         .container {
@@ -44,8 +78,24 @@
         .logo {
             font-size: 2rem;
             font-weight: bold;
-            color: #00ff88;
-            text-shadow: 0 0 10px rgba(0, 255, 136, 0.5);
+            color: #ff6b9d;
+            text-shadow: 0 0 10px rgba(255, 107, 157, 0.5);
+            animation: logoBounce 2s ease-in-out infinite;
+            cursor: pointer;
+        }
+
+        @keyframes logoBounce {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.05); }
+        }
+
+        .logo:hover {
+            animation: logoSpin 0.5s ease-in-out;
+        }
+
+        @keyframes logoSpin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
         }
 
         .nav-links {
@@ -61,7 +111,31 @@
         }
 
         .nav-links a:hover {
-            color: #00ff88;
+            color: #ff6b9d;
+            transform: scale(1.1);
+            transition: all 0.3s ease;
+        }
+
+        .nav-links a {
+            color: white;
+            text-decoration: none;
+            transition: all 0.3s ease;
+            position: relative;
+        }
+
+        .nav-links a::after {
+            content: '';
+            position: absolute;
+            width: 0;
+            height: 2px;
+            bottom: -5px;
+            left: 0;
+            background: linear-gradient(45deg, #ff6b9d, #f093fb);
+            transition: width 0.3s ease;
+        }
+
+        .nav-links a:hover::after {
+            width: 100%;
         }
 
         /* Hero Section */
@@ -90,21 +164,44 @@
         }
 
         .cta-button {
-            background: linear-gradient(45deg, #00ff88, #00cc6a);
+            background: linear-gradient(45deg, #ff6b9d, #f093fb);
             color: white;
             padding: 1rem 2rem;
             border: none;
             border-radius: 50px;
             font-size: 1.1rem;
             cursor: pointer;
-            transition: transform 0.3s ease, box-shadow 0.3s ease;
+            transition: all 0.3s ease;
             text-decoration: none;
             display: inline-block;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .cta-button::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.3), transparent);
+            transition: left 0.5s ease;
+        }
+
+        .cta-button:hover::before {
+            left: 100%;
         }
 
         .cta-button:hover {
-            transform: translateY(-3px);
-            box-shadow: 0 10px 20px rgba(0, 255, 136, 0.3);
+            transform: translateY(-3px) scale(1.05);
+            box-shadow: 0 15px 30px rgba(255, 107, 157, 0.4);
+            animation: buttonPulse 0.6s ease-in-out;
+        }
+
+        @keyframes buttonPulse {
+            0%, 100% { transform: translateY(-3px) scale(1.05); }
+            50% { transform: translateY(-3px) scale(1.1); }
         }
 
         /* Main Content */
@@ -137,8 +234,45 @@
         }
 
         .review-card:hover {
-            transform: translateY(-10px);
-            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.4);
+            transform: translateY(-10px) rotate(2deg);
+            box-shadow: 0 20px 40px rgba(255, 107, 157, 0.3);
+            animation: cardWiggle 0.6s ease-in-out;
+        }
+
+        @keyframes cardWiggle {
+            0%, 100% { transform: translateY(-10px) rotate(2deg); }
+            25% { transform: translateY(-10px) rotate(-1deg); }
+            75% { transform: translateY(-10px) rotate(1deg); }
+        }
+
+        .review-card {
+            background: white;
+            border-radius: 15px;
+            overflow: hidden;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+            transition: all 0.3s ease;
+            position: relative;
+        }
+
+        .review-card::before {
+            content: '🎮';
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            font-size: 1.5rem;
+            opacity: 0;
+            transition: all 0.3s ease;
+            z-index: 2;
+        }
+
+        .review-card:hover::before {
+            opacity: 1;
+            animation: emojiBounce 0.6s ease-in-out;
+        }
+
+        @keyframes emojiBounce {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.2); }
         }
 
         .game-image {
@@ -173,14 +307,26 @@
             color: #ffd700;
             font-size: 1.2rem;
             margin-right: 0.5rem;
+            animation: starTwinkle 2s ease-in-out infinite;
+        }
+
+        @keyframes starTwinkle {
+            0%, 100% { opacity: 1; transform: scale(1); }
+            50% { opacity: 0.7; transform: scale(1.1); }
         }
 
         .score {
-            background: linear-gradient(45deg, #00ff88, #00cc6a);
+            background: linear-gradient(45deg, #ff6b9d, #f093fb);
             color: white;
             padding: 0.3rem 0.8rem;
             border-radius: 20px;
             font-weight: bold;
+            animation: scoreGlow 2s ease-in-out infinite;
+        }
+
+        @keyframes scoreGlow {
+            0%, 100% { box-shadow: 0 0 5px rgba(255, 107, 157, 0.5); }
+            50% { box-shadow: 0 0 15px rgba(255, 107, 157, 0.8); }
         }
 
         .review-excerpt {
@@ -190,14 +336,26 @@
         }
 
         .read-more {
-            color: #00ff88;
+            color: #ff6b9d;
             text-decoration: none;
             font-weight: bold;
-            transition: color 0.3s ease;
+            transition: all 0.3s ease;
+            position: relative;
+            display: inline-block;
+        }
+
+        .read-more::after {
+            content: ' →';
+            transition: transform 0.3s ease;
         }
 
         .read-more:hover {
-            color: #00cc6a;
+            color: #f093fb;
+            transform: translateX(5px);
+        }
+
+        .read-more:hover::after {
+            transform: translateX(3px);
         }
 
         /* Categories Section */
@@ -221,8 +379,44 @@
         }
 
         .category-card:hover {
-            transform: translateY(-5px);
+            transform: translateY(-5px) scale(1.05);
             background: rgba(255, 255, 255, 0.2);
+            animation: categoryBounce 0.6s ease-in-out;
+        }
+
+        @keyframes categoryBounce {
+            0%, 100% { transform: translateY(-5px) scale(1.05); }
+            50% { transform: translateY(-8px) scale(1.1); }
+        }
+
+        .category-card {
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            border-radius: 15px;
+            padding: 2rem;
+            text-align: center;
+            color: white;
+            transition: all 0.3s ease;
+            cursor: pointer;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .category-card::before {
+            content: '';
+            position: absolute;
+            top: -50%;
+            left: -50%;
+            width: 200%;
+            height: 200%;
+            background: radial-gradient(circle, rgba(255, 255, 255, 0.1) 0%, transparent 70%);
+            transform: scale(0);
+            transition: transform 0.3s ease;
+        }
+
+        .category-card:hover::before {
+            transform: scale(1);
         }
 
         .category-icon {
@@ -394,6 +588,9 @@
         </nav>
     </header>
 
+    <!-- Floating particles container -->
+    <div class="particles" id="particles"></div>
+
     <!-- Hero Section -->
     <section class="hero" id="home">
         <div class="hero-content">
@@ -511,7 +708,7 @@
     </footer>
 
     <script>
-        // Sample game reviews data
+        // Sample game reviews data with funny reviews!
         const gameReviews = [
             {
                 id: 1,
@@ -519,7 +716,7 @@
                 genre: "Action RPG",
                 image: "https://images.unsplash.com/photo-1542751371-adc38448a05e?ixlib=rb-4.0.3&auto=format&fit=crop&w=500&q=80",
                 rating: 4.5,
-                excerpt: "A stunning expansion that finally delivers on the game's original promise with improved gameplay and a compelling story.",
+                excerpt: "Finally, a game where I can be a cyberpunk hacker and still get stuck on geometry! The bugs are now 'features' and my character occasionally T-poses through walls like a confused robot. 10/10 would glitch again! 🐛✨",
                 category: "rpg"
             },
             {
@@ -528,7 +725,7 @@
                 genre: "RPG",
                 image: "https://images.unsplash.com/photo-1511512578047-dfb367046420?ixlib=rb-4.0.3&auto=format&fit=crop&w=500&q=80",
                 rating: 5.0,
-                excerpt: "A masterpiece of storytelling and gameplay that sets a new standard for the RPG genre.",
+                excerpt: "I spent 200 hours romancing a bear and I'm not even sorry. The game lets you date literally anything with a pulse (and some without). My character is now married to a sentient cheese wheel. This is peak gaming. 🧀💕",
                 category: "rpg"
             },
             {
@@ -537,7 +734,7 @@
                 genre: "Action Adventure",
                 image: "https://images.unsplash.com/photo-1542751371-adc38448a05e?ixlib=rb-4.0.3&auto=format&fit=crop&w=500&q=80",
                 rating: 4.8,
-                excerpt: "Swinging through New York has never felt more exhilarating with improved mechanics and a compelling narrative.",
+                excerpt: "Swinging through New York while listening to 'Spider-Man, Spider-Man, does whatever a spider can' on repeat. My neighbors think I'm having a mental breakdown. Worth it! 🕷️🎵",
                 category: "action"
             },
             {
@@ -546,7 +743,7 @@
                 genre: "RPG",
                 image: "https://images.unsplash.com/photo-1511512578047-dfb367046420?ixlib=rb-4.0.3&auto=format&fit=crop&w=500&q=80",
                 rating: 4.2,
-                excerpt: "A vast space exploration game with endless possibilities, though it takes time to truly shine.",
+                excerpt: "I've explored 1000 planets and found the same 3 rocks on each one. But hey, at least I can build a space house and pretend I'm a cosmic real estate agent! 🏠🚀",
                 category: "rpg"
             },
             {
@@ -555,7 +752,7 @@
                 genre: "Sports",
                 image: "https://images.unsplash.com/photo-1542751371-adc38448a05e?ixlib=rb-4.0.3&auto=format&fit=crop&w=500&q=80",
                 rating: 4.0,
-                excerpt: "Solid improvements to gameplay mechanics make this the best FIFA in recent years.",
+                excerpt: "Same game as last year, but now with more microtransactions! My virtual team costs more than my real life. At least my digital Messi doesn't ask for a raise every week. ⚽💰",
                 category: "sports"
             },
             {
@@ -563,9 +760,62 @@
                 title: "Resident Evil 4 Remake",
                 genre: "Horror Action",
                 image: "https://images.unsplash.com/photo-1511512578047-dfb367046420?ixlib=rb-4.0.3&auto=format&fit=crop&w=500&q=80",
-                rating: 4.7,
-                excerpt: "A masterful remake that modernizes a classic while preserving its essence and improving every aspect.",
+                excerpt: "Leon Kennedy's hair physics are more terrifying than the zombies. I spent half the game just admiring his perfect locks while running from chainsaw-wielding maniacs. Priorities! 💇‍♂️🧟‍♂️",
                 category: "horror"
+            },
+            {
+                id: 7,
+                title: "Animal Crossing: New Horizons",
+                genre: "Life Simulation",
+                image: "https://images.unsplash.com/photo-1542751371-adc38448a05e?ixlib=rb-4.0.3&auto=format&fit=crop&w=500&q=80",
+                rating: 4.9,
+                excerpt: "I'm in debt to a raccoon and I'm okay with it. Tom Nook is basically my landlord now, and my villagers judge me for not watering my flowers. This is my life now. 🦝🏠",
+                category: "indie"
+            },
+            {
+                id: 8,
+                title: "Among Us",
+                genre: "Social Deduction",
+                image: "https://images.unsplash.com/photo-1511512578047-dfb367046420?ixlib=rb-4.0.3&auto=format&fit=crop&w=500&q=80",
+                rating: 4.3,
+                excerpt: "I've lost more friends playing this game than I have in real life. Red sus? More like friendship sus! But watching everyone panic when the lights go out is priceless. 🔴👻",
+                category: "strategy"
+            },
+            {
+                id: 9,
+                title: "Fall Guys",
+                genre: "Battle Royale",
+                image: "https://images.unsplash.com/photo-1542751371-adc38448a05e?ixlib=rb-4.0.3&auto=format&fit=crop&w=500&q=80",
+                rating: 4.1,
+                excerpt: "I'm a jelly bean with anxiety trying to survive obstacle courses designed by a sadist. I've fallen off more platforms than I can count, but I keep coming back for more punishment. 🫘😅",
+                category: "action"
+            },
+            {
+                id: 10,
+                title: "Stardew Valley",
+                genre: "Farming Simulator",
+                image: "https://images.unsplash.com/photo-1511512578047-dfb367046420?ixlib=rb-4.0.3&auto=format&fit=crop&w=500&q=80",
+                rating: 4.7,
+                excerpt: "I'm a digital farmer who's more successful than my real life. My virtual crops are thriving while my houseplants are dying. At least my pixelated chickens love me. 🐔🌾",
+                category: "indie"
+            },
+            {
+                id: 11,
+                title: "Five Nights at Freddy's",
+                genre: "Horror",
+                image: "https://images.unsplash.com/photo-1542751371-adc38448a05e?ixlib=rb-4.0.3&auto=format&fit=crop&w=500&q=80",
+                rating: 4.4,
+                excerpt: "I'm being hunted by animatronic animals while working a night shift. My job security is worse than my survival rate. At least the pizza is free... if I live long enough to eat it. 🐻🍕",
+                category: "horror"
+            },
+            {
+                id: 12,
+                title: "Rocket League",
+                genre: "Sports",
+                image: "https://images.unsplash.com/photo-1511512578047-dfb367046420?ixlib=rb-4.0.3&auto=format&fit=crop&w=500&q=80",
+                rating: 4.6,
+                excerpt: "Soccer with rocket-powered cars. I've scored more own goals than actual goals, but I look cool doing it. My teammates hate me, but my car has a sweet paint job! 🚗⚽",
+                category: "sports"
             }
         ];
 
@@ -626,19 +876,49 @@
             });
         }
 
-        // Function to read full review
+        // Function to read full review with funny responses
         function readFullReview(reviewId) {
             const review = gameReviews.find(r => r.id === reviewId);
             if (review) {
-                alert(`Full Review for ${review.title}\n\n${review.excerpt}\n\nThis is where the full review content would be displayed. In a real website, this would open a detailed review page with complete analysis, screenshots, and gameplay footage.`);
+                const funnyResponses = [
+                    "🎮 Wow, that's some serious gaming dedication!",
+                    "😂 I can't stop laughing at this review!",
+                    "🔥 This review is absolutely fire!",
+                    "💯 100% accurate, no cap!",
+                    "🎯 You hit the nail on the head with this one!",
+                    "🚀 This review is out of this world!",
+                    "✨ Pure gaming gold right here!",
+                    "🎪 This review is a whole circus and I love it!",
+                    "🏆 Review of the year material!",
+                    "🎨 This review is a work of art!"
+                ];
+                
+                const randomResponse = funnyResponses[Math.floor(Math.random() * funnyResponses.length)];
+                
+                alert(`${randomResponse}\n\n🎮 ${review.title}\n\n${review.excerpt}\n\n⭐ Rating: ${review.rating}/5.0\n\nThis is where the full review content would be displayed. In a real website, this would open a detailed review page with complete analysis, screenshots, and gameplay footage.`);
             }
         }
 
-        // Function to subscribe to newsletter
+        // Function to subscribe to newsletter with funny messages
         function subscribeNewsletter(event) {
             event.preventDefault();
             const email = event.target.querySelector('input[type="email"]').value;
-            alert(`Thank you for subscribing with ${email}! You'll receive our latest gaming reviews and news.`);
+            
+            const funnyMessages = [
+                `🎉 Welcome to the gaming family, ${email}! You're now part of our elite squad of game reviewers!`,
+                `🚀 ${email} has joined the party! Get ready for some epic gaming content!`,
+                `🎮 ${email} is now subscribed! Time to level up your gaming knowledge!`,
+                `✨ ${email} just unlocked the 'Newsletter Subscriber' achievement!`,
+                `🎪 ${email} has entered the gaming circus! Welcome to the madness!`,
+                `🏆 ${email} is now part of our gaming hall of fame!`,
+                `🎨 ${email} just painted themselves into our gaming masterpiece!`,
+                `🔥 ${email} is now on fire with gaming knowledge!`,
+                `💎 ${email} is now a gaming diamond! Shine bright!`,
+                `🎯 ${email} just hit the bullseye! Welcome to the target audience!`
+            ];
+            
+            const randomMessage = funnyMessages[Math.floor(Math.random() * funnyMessages.length)];
+            alert(randomMessage);
             event.target.reset();
         }
 
@@ -660,12 +940,71 @@
             // Show loading animation
             document.getElementById('loading').style.display = 'block';
             
+            // Create floating particles
+            createParticles();
+            
             // Simulate loading time
             setTimeout(() => {
                 document.getElementById('loading').style.display = 'none';
                 renderReviews(gameReviews);
+                
+                // Add confetti effect when page loads
+                createConfetti();
             }, 1000);
         });
+
+        // Create floating particles
+        function createParticles() {
+            const particlesContainer = document.getElementById('particles');
+            const particleCount = 20;
+            
+            for (let i = 0; i < particleCount; i++) {
+                const particle = document.createElement('div');
+                particle.className = 'particle';
+                particle.style.left = Math.random() * 100 + '%';
+                particle.style.top = Math.random() * 100 + '%';
+                particle.style.animationDelay = Math.random() * 6 + 's';
+                particle.style.animationDuration = (Math.random() * 3 + 3) + 's';
+                particlesContainer.appendChild(particle);
+            }
+        }
+
+        // Create confetti effect
+        function createConfetti() {
+            const colors = ['#ff6b9d', '#f093fb', '#4facfe', '#00f2fe', '#43e97b'];
+            const confettiCount = 50;
+            
+            for (let i = 0; i < confettiCount; i++) {
+                const confetti = document.createElement('div');
+                confetti.style.position = 'fixed';
+                confetti.style.width = '10px';
+                confetti.style.height = '10px';
+                confetti.style.backgroundColor = colors[Math.floor(Math.random() * colors.length)];
+                confetti.style.left = Math.random() * 100 + '%';
+                confetti.style.top = '-10px';
+                confetti.style.zIndex = '9999';
+                confetti.style.pointerEvents = 'none';
+                confetti.style.animation = `confettiFall ${Math.random() * 3 + 2}s linear forwards`;
+                document.body.appendChild(confetti);
+                
+                // Remove confetti after animation
+                setTimeout(() => {
+                    confetti.remove();
+                }, 5000);
+            }
+        }
+
+        // Add confetti animation to CSS
+        const style = document.createElement('style');
+        style.textContent = `
+            @keyframes confettiFall {
+                to {
+                    transform: translateY(100vh) rotate(360deg);
+                    opacity: 0;
+                }
+            }
+        `;
+        document.head.appendChild(style);
 
         // Add some interactive features
         window.addEventListener('scroll', function() {
@@ -675,6 +1014,49 @@
             } else {
                 header.style.background = 'rgba(0, 0, 0, 0.9)';
             }
+        });
+
+        // Add click sound effects
+        document.addEventListener('click', function() {
+            // Create a fun click effect
+            const clickEffect = document.createElement('div');
+            clickEffect.style.position = 'fixed';
+            clickEffect.style.pointerEvents = 'none';
+            clickEffect.style.zIndex = '10000';
+            clickEffect.style.fontSize = '2rem';
+            clickEffect.style.animation = 'clickPop 0.5s ease-out forwards';
+            
+            const emojis = ['🎮', '✨', '🎯', '🚀', '💎', '🔥', '🎪', '🏆'];
+            clickEffect.textContent = emojis[Math.floor(Math.random() * emojis.length)];
+            
+            document.body.appendChild(clickEffect);
+            
+            setTimeout(() => clickEffect.remove(), 500);
+        });
+
+        // Add click animation to CSS
+        const clickStyle = document.createElement('style');
+        clickStyle.textContent = `
+            @keyframes clickPop {
+                0% {
+                    transform: scale(0) rotate(0deg);
+                    opacity: 1;
+                }
+                100% {
+                    transform: scale(1.5) rotate(180deg);
+                    opacity: 0;
+                }
+            }
+        `;
+        document.head.appendChild(clickStyle);
+
+        // Logo click effect
+        document.querySelector('.logo').addEventListener('click', function() {
+            createConfetti();
+            this.style.animation = 'logoSpin 0.5s ease-in-out';
+            setTimeout(() => {
+                this.style.animation = 'logoBounce 2s ease-in-out infinite';
+            }, 500);
         });
     </script>
 </body>
