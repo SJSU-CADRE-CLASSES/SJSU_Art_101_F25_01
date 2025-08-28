@@ -1,0 +1,699 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SF Poop Map - 3D Toilet Visualization</title>
+    <style>
+        body {
+            margin: 0;
+            padding: 0;
+            background: linear-gradient(135deg, #1a1a2e, #16213e, #0f3460);
+            font-family: 'Arial', sans-serif;
+            overflow: hidden;
+            color: white;
+        }
+        
+        #container {
+            position: relative;
+            width: 100vw;
+            height: 100vh;
+        }
+        
+        #info {
+            position: absolute;
+            top: 20px;
+            left: 20px;
+            z-index: 100;
+            background: rgba(0, 0, 0, 0.7);
+            padding: 20px;
+            border-radius: 10px;
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+        
+        #controls {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            z-index: 100;
+            background: rgba(0, 0, 0, 0.7);
+            padding: 20px;
+            border-radius: 10px;
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+        
+        .control-group {
+            margin-bottom: 15px;
+        }
+        
+        label {
+            display: block;
+            margin-bottom: 5px;
+            font-size: 14px;
+            color: #ccc;
+        }
+        
+        input[type="range"] {
+            width: 150px;
+            margin-bottom: 10px;
+        }
+        
+        button {
+            background: linear-gradient(45deg, #ff6b6b, #ee5a24);
+            border: none;
+            color: white;
+            padding: 8px 16px;
+            border-radius: 5px;
+            cursor: pointer;
+            margin: 2px;
+            font-size: 12px;
+            transition: all 0.3s ease;
+        }
+        
+        button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
+        }
+        
+        #stats {
+            position: absolute;
+            bottom: 20px;
+            left: 20px;
+            z-index: 100;
+            background: rgba(0, 0, 0, 0.7);
+            padding: 15px;
+            border-radius: 10px;
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            font-size: 14px;
+        }
+        
+        .poop-count {
+            color: #ff6b6b;
+            font-weight: bold;
+        }
+        
+        #loading {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            z-index: 200;
+            background: rgba(0, 0, 0, 0.9);
+            padding: 30px;
+            border-radius: 15px;
+            text-align: center;
+            backdrop-filter: blur(15px);
+            border: 2px solid rgba(255, 255, 255, 0.2);
+        }
+        
+        .spinner {
+            width: 40px;
+            height: 40px;
+            border: 4px solid rgba(255, 255, 255, 0.3);
+            border-top: 4px solid #ff6b6b;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+            margin: 0 auto 20px;
+        }
+        
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+    </style>
+</head>
+<body>
+    <div id="container">
+        <div id="info">
+            <h2>🚽 SF Poop Map</h2>
+            <p>3D Toilet Visualization</p>
+            <p>Click and drag to rotate, scroll to zoom</p>
+        </div>
+        
+        <div id="controls">
+            <div class="control-group">
+                <label>Model Type</label>
+                <button id="toggleModel">Switch to City</button>
+            </div>
+            <div class="control-group">
+                <label>Poop Density</label>
+                <input type="range" id="density" min="100" max="1000" value="500">
+            </div>
+            <div class="control-group">
+                <label>Animation Speed</label>
+                <input type="range" id="speed" min="0.1" max="2" value="1" step="0.1">
+            </div>
+            <div class="control-group">
+                <label>Color Theme</label>
+                <button id="theme1">Classic</button>
+                <button id="theme2">Neon</button>
+                <button id="theme3">Earth</button>
+            </div>
+            <div class="control-group">
+                <button id="reset">Reset View</button>
+                <button id="toggleAnimation">Pause</button>
+            </div>
+        </div>
+        
+        <div id="stats">
+            <div>Poop Markers: <span class="poop-count" id="poopCount">0</span></div>
+            <div>FPS: <span id="fps">0</span></div>
+        </div>
+        
+        <div id="loading">
+            <div class="spinner"></div>
+            <div>Building 3D Toilet...</div>
+        </div>
+    </div>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+    <script>
+        // Scene setup
+        const scene = new THREE.Scene();
+        const camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
+        const renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
+        
+        renderer.setSize(window.innerWidth, window.innerHeight);
+        renderer.setClearColor(0x000000, 0);
+        renderer.shadowMap.enabled = true;
+        renderer.shadowMap.type = THREE.PCFSoftShadowMap;
+        
+        document.getElementById('container').appendChild(renderer.domElement);
+        
+        // Camera position
+        camera.position.set(0, 50, 100);
+        camera.lookAt(0, 0, 0);
+        
+        // Lighting
+        const ambientLight = new THREE.AmbientLight(0x404040, 0.6);
+        scene.add(ambientLight);
+        
+        const directionalLight = new THREE.DirectionalLight(0xffffff, 0.8);
+        directionalLight.position.set(50, 50, 50);
+        directionalLight.castShadow = true;
+        scene.add(directionalLight);
+        
+        // Model groups
+        const toiletGroup = new THREE.Group();
+        const cityGroup = new THREE.Group();
+        let currentModel = 'toilet'; // Track current model
+        
+        // Add both models to scene (city will be hidden initially)
+        scene.add(toiletGroup);
+        scene.add(cityGroup);
+        
+        // Big Toilet Model
+        // Toilet bowl (main part)
+        const bowlGeometry = new THREE.CylinderGeometry(25, 30, 20, 32);
+        const bowlMaterial = new THREE.MeshLambertMaterial({
+            color: 0xffffff,
+            transparent: true,
+            opacity: 0.9
+        });
+        const bowl = new THREE.Mesh(bowlGeometry, bowlMaterial);
+        bowl.position.set(0, 10, 0);
+        bowl.castShadow = true;
+        bowl.receiveShadow = true;
+        toiletGroup.add(bowl);
+        
+        // Toilet seat
+        const seatGeometry = new THREE.TorusGeometry(25, 3, 16, 32);
+        const seatMaterial = new THREE.MeshLambertMaterial({
+            color: 0xf5f5dc,
+            transparent: true,
+            opacity: 0.8
+        });
+        const seat = new THREE.Mesh(seatGeometry, seatMaterial);
+        seat.position.set(0, 20, 0);
+        seat.rotation.x = Math.PI / 2;
+        seat.castShadow = true;
+        seat.receiveShadow = true;
+        toiletGroup.add(seat);
+        
+        // Toilet tank
+        const tankGeometry = new THREE.BoxGeometry(40, 30, 15);
+        const tankMaterial = new THREE.MeshLambertMaterial({
+            color: 0xffffff,
+            transparent: true,
+            opacity: 0.9
+        });
+        const tank = new THREE.Mesh(tankGeometry, tankMaterial);
+        tank.position.set(0, 45, -20);
+        tank.castShadow = true;
+        tank.receiveShadow = true;
+        toiletGroup.add(tank);
+        
+        // Tank lid
+        const lidGeometry = new THREE.BoxGeometry(42, 5, 17);
+        const lidMaterial = new THREE.MeshLambertMaterial({
+            color: 0xf5f5dc,
+            transparent: true,
+            opacity: 0.8
+        });
+        const lid = new THREE.Mesh(lidGeometry, lidMaterial);
+        lid.position.set(0, 62.5, -20);
+        lid.castShadow = true;
+        lid.receiveShadow = true;
+        toiletGroup.add(lid);
+        
+        // Flush handle
+        const handleGeometry = new THREE.CylinderGeometry(1, 1, 8, 8);
+        const handleMaterial = new THREE.MeshLambertMaterial({
+            color: 0x8b4513
+        });
+        const handle = new THREE.Mesh(handleGeometry, handleMaterial);
+        handle.position.set(15, 50, -20);
+        handle.rotation.z = Math.PI / 2;
+        handle.castShadow = true;
+        toiletGroup.add(handle);
+        
+        // Toilet base/stand
+        const baseGeometry = new THREE.CylinderGeometry(35, 40, 10, 32);
+        const baseMaterial = new THREE.MeshLambertMaterial({
+            color: 0xcccccc,
+            transparent: true,
+            opacity: 0.8
+        });
+        const base = new THREE.Mesh(baseGeometry, baseMaterial);
+        base.position.set(0, 5, 0);
+        base.castShadow = true;
+        base.receiveShadow = true;
+        toiletGroup.add(base);
+        
+        // Water in bowl
+        const waterGeometry = new THREE.CylinderGeometry(20, 25, 15, 32);
+        const waterMaterial = new THREE.MeshLambertMaterial({
+            color: 0x87ceeb,
+            transparent: true,
+            opacity: 0.6
+        });
+        const water = new THREE.Mesh(waterGeometry, waterMaterial);
+        water.position.set(0, 7.5, 0);
+        water.castShadow = true;
+        water.receiveShadow = true;
+        toiletGroup.add(water);
+        
+        // San Francisco City Grid
+        // Create abstract city blocks representing SF neighborhoods
+        for (let i = 0; i < 25; i++) {
+            for (let j = 0; j < 25; j++) {
+                // Vary building heights to create SF's hilly terrain effect
+                const height = Math.random() * 20 + 5;
+                const geometry = new THREE.BoxGeometry(6, height, 6);
+                
+                // Use different colors for different areas (like SF neighborhoods)
+                let color;
+                if (i < 8 && j < 8) {
+                    color = 0x4682B4; // Financial District - blue
+                } else if (i < 15 && j < 15) {
+                    color = 0x32CD32; // Mission District - green
+                } else if (i < 20 && j < 20) {
+                    color = 0xFFD700; // Golden Gate Park area - gold
+                } else {
+                    color = 0xCD853F; // Outer areas - brown
+                }
+                
+                const material = new THREE.MeshLambertMaterial({
+                    color: color,
+                    transparent: true,
+                    opacity: 0.8
+                });
+                
+                const building = new THREE.Mesh(geometry, material);
+                building.position.set((i - 12) * 8, height / 2, (j - 12) * 8);
+                building.castShadow = true;
+                building.receiveShadow = true;
+                cityGroup.add(building);
+            }
+        }
+        
+        // Add some taller landmark buildings
+        const landmarks = [
+            { pos: [0, 0], height: 40, color: 0x1E90FF, name: "Transamerica" },
+            { pos: [5, 5], height: 35, color: 0x4169E1, name: "Salesforce" },
+            { pos: [-8, -8], height: 30, color: 0x00CED1, name: "Coit Tower" },
+            { pos: [10, -10], height: 25, color: 0xFFD700, name: "Golden Gate" }
+        ];
+        
+        landmarks.forEach(landmark => {
+            const geometry = new THREE.BoxGeometry(10, landmark.height, 10);
+            const material = new THREE.MeshLambertMaterial({
+                color: landmark.color,
+                transparent: true,
+                opacity: 0.9
+            });
+            const building = new THREE.Mesh(geometry, material);
+            building.position.set(landmark.pos[0] * 8, landmark.height / 2, landmark.pos[1] * 8);
+            building.castShadow = true;
+            building.receiveShadow = true;
+            cityGroup.add(building);
+        });
+        
+        // Initially hide city grid
+        cityGroup.visible = false;
+        
+        // Poop markers
+        const poopMarkers = new THREE.Group();
+        scene.add(poopMarkers);
+        
+        // Poop marker geometry
+        const poopGeometry = new THREE.SphereGeometry(1, 8, 6);
+        
+        // Create poop markers
+        function createPoopMarkers(count) {
+            poopMarkers.clear();
+            
+            for (let i = 0; i < count; i++) {
+                const material = new THREE.MeshLambertMaterial({
+                    color: new THREE.Color().setHSL(0.1, 0.8, 0.4 + Math.random() * 0.3),
+                    transparent: true,
+                    opacity: 0.8
+                });
+                
+                const poop = new THREE.Mesh(poopGeometry, material);
+                
+                let x, y, z;
+                const placement = Math.random();
+                
+                if (currentModel === 'toilet') {
+                    // Position poop markers on and around the toilet
+                    if (placement < 0.3) {
+                        // Inside the bowl
+                        x = (Math.random() - 0.5) * 40;
+                        y = 5 + Math.random() * 10;
+                        z = (Math.random() - 0.5) * 40;
+                    } else if (placement < 0.6) {
+                        // Around the base
+                        const angle = Math.random() * Math.PI * 2;
+                        const radius = 35 + Math.random() * 20;
+                        x = Math.cos(angle) * radius;
+                        y = 2 + Math.random() * 3;
+                        z = Math.sin(angle) * radius;
+                    } else if (placement < 0.8) {
+                        // On the seat
+                        x = (Math.random() - 0.5) * 40;
+                        y = 20 + Math.random() * 2;
+                        z = (Math.random() - 0.5) * 40;
+                    } else {
+                        // Floating around the toilet
+                        x = (Math.random() - 0.5) * 100;
+                        y = 10 + Math.random() * 60;
+                        z = (Math.random() - 0.5) * 100;
+                    }
+                } else {
+                    // Position poop markers around the city
+                    if (placement < 0.4) {
+                        // On streets between buildings
+                        x = (Math.random() - 0.5) * 200;
+                        y = 2 + Math.random() * 3;
+                        z = (Math.random() - 0.5) * 200;
+                    } else if (placement < 0.7) {
+                        // On top of buildings
+                        x = (Math.random() - 0.5) * 200;
+                        y = 15 + Math.random() * 20;
+                        z = (Math.random() - 0.5) * 200;
+                    } else {
+                        // Floating above the city
+                        x = (Math.random() - 0.5) * 200;
+                        y = 30 + Math.random() * 40;
+                        z = (Math.random() - 0.5) * 200;
+                    }
+                }
+                
+                poop.position.set(x, y, z);
+                
+                poop.scale.set(
+                    0.5 + Math.random() * 1.5,
+                    0.5 + Math.random() * 1.5,
+                    0.5 + Math.random() * 1.5
+                );
+                
+                poop.castShadow = true;
+                poop.userData = { originalY: poop.position.y };
+                poopMarkers.add(poop);
+            }
+            
+            document.getElementById('poopCount').textContent = count;
+        }
+        
+        // Initial poop markers
+        createPoopMarkers(500);
+        
+        // Animation variables
+        let animationSpeed = 1;
+        let isAnimating = true;
+        let clock = new THREE.Clock();
+        let frameCount = 0;
+        let lastTime = 0;
+        
+        // Camera controls
+        let isMouseDown = false;
+        let mouseX = 0;
+        let mouseY = 0;
+        let lastMouseX = 0;
+        let lastMouseY = 0;
+        let cameraDistance = 100;
+        let cameraRotationX = 0;
+        let cameraRotationY = 0;
+        
+        // Event listeners
+        document.addEventListener('mousedown', (event) => {
+            isMouseDown = true;
+            lastMouseX = event.clientX;
+            lastMouseY = event.clientY;
+        });
+        
+        document.addEventListener('mouseup', (event) => {
+            isMouseDown = false;
+        });
+        
+        document.addEventListener('mousemove', (event) => {
+            if (isMouseDown) {
+                const deltaX = event.clientX - lastMouseX;
+                const deltaY = event.clientY - lastMouseY;
+                
+                cameraRotationY += deltaX * 0.01;
+                cameraRotationX += deltaY * 0.01;
+                
+                // Limit vertical rotation to prevent flipping
+                cameraRotationX = Math.max(-Math.PI / 2, Math.min(Math.PI / 2, cameraRotationX));
+                
+                lastMouseX = event.clientX;
+                lastMouseY = event.clientY;
+            }
+        });
+        
+        document.addEventListener('wheel', (event) => {
+            // Zoom in/out with mouse wheel
+            cameraDistance += event.deltaY * 0.5;
+            cameraDistance = Math.max(30, Math.min(200, cameraDistance));
+        });
+        
+        // Control panel functionality
+        document.getElementById('density').addEventListener('input', (e) => {
+            createPoopMarkers(parseInt(e.target.value));
+        });
+        
+        document.getElementById('speed').addEventListener('input', (e) => {
+            animationSpeed = parseFloat(e.target.value);
+        });
+        
+        document.getElementById('reset').addEventListener('click', () => {
+            cameraDistance = 100;
+            cameraRotationX = 0;
+            cameraRotationY = 0;
+        });
+        
+        document.getElementById('toggleAnimation').addEventListener('click', () => {
+            isAnimating = !isAnimating;
+            document.getElementById('toggleAnimation').textContent = isAnimating ? 'Pause' : 'Play';
+        });
+        
+        // Model toggle functionality
+        document.getElementById('toggleModel').addEventListener('click', () => {
+            if (currentModel === 'toilet') {
+                // Switch to city
+                currentModel = 'city';
+                toiletGroup.visible = false;
+                cityGroup.visible = true;
+                document.getElementById('toggleModel').textContent = 'Switch to Toilet';
+                document.getElementById('info').querySelector('h2').textContent = '🏙️ SF Poop Map';
+                document.getElementById('info').querySelector('p:nth-child(2)').textContent = '3D City Visualization';
+            } else {
+                // Switch to toilet
+                currentModel = 'toilet';
+                toiletGroup.visible = true;
+                cityGroup.visible = false;
+                document.getElementById('toggleModel').textContent = 'Switch to City';
+                document.getElementById('info').querySelector('h2').textContent = '🚽 SF Poop Map';
+                document.getElementById('info').querySelector('p:nth-child(2)').textContent = '3D Toilet Visualization';
+            }
+            
+            // Regenerate poop markers for the new model
+            createPoopMarkers(parseInt(document.getElementById('density').value));
+        });
+        
+        // Theme buttons
+        const themes = {
+            classic: { 
+                poop: 0x8B4513, 
+                bowl: 0xffffff, 
+                seat: 0xf5f5dc, 
+                tank: 0xffffff, 
+                water: 0x87ceeb,
+                building1: 0x4682B4, building2: 0x32CD32, building3: 0xFFD700, building4: 0xCD853F,
+                ambient: 0x404040 
+            },
+            neon: { 
+                poop: 0xFF1493, 
+                bowl: 0x00ffff, 
+                seat: 0xff00ff, 
+                tank: 0x00ff00, 
+                water: 0x0080ff,
+                building1: 0x00ffff, building2: 0xff00ff, building3: 0x00ff00, building4: 0xff1493,
+                ambient: 0x1a1a2e 
+            },
+            earth: { 
+                poop: 0x654321, 
+                bowl: 0xf4a460, 
+                seat: 0x8b4513, 
+                tank: 0xcd853f, 
+                water: 0x4682b4,
+                building1: 0x8b4513, building2: 0x556b2f, building3: 0xdaa520, building4: 0x654321,
+                ambient: 0x2F4F2F 
+            }
+        };
+        
+        Object.keys(themes).forEach((theme, index) => {
+            document.getElementById(`theme${index + 1}`).addEventListener('click', () => {
+                const colors = themes[theme];
+                
+                // Update poop colors
+                poopMarkers.children.forEach(poop => {
+                    poop.material.color.setHex(colors.poop);
+                });
+                
+                // Update toilet colors
+                bowl.material.color.setHex(colors.bowl);
+                seat.material.color.setHex(colors.seat);
+                tank.material.color.setHex(colors.tank);
+                water.material.color.setHex(colors.water);
+                
+                // Update city building colors
+                cityGroup.children.forEach((building, index) => {
+                    if (index < 625) { // Regular buildings
+                        const area = Math.floor(index / 25);
+                        const row = Math.floor((index % 25) / 25);
+                        if (area < 8) building.material.color.setHex(colors.building1);
+                        else if (area < 15) building.material.color.setHex(colors.building2);
+                        else if (area < 20) building.material.color.setHex(colors.building3);
+                        else building.material.color.setHex(colors.building4);
+                    }
+                });
+                
+                // Update ambient light
+                ambientLight.color.setHex(colors.ambient);
+            });
+        });
+        
+        // Animation loop
+        function animate() {
+            requestAnimationFrame(animate);
+            
+            const time = clock.getElapsedTime();
+            frameCount++;
+            
+            if (time - lastTime >= 1) {
+                document.getElementById('fps').textContent = frameCount;
+                frameCount = 0;
+                lastTime = time;
+            }
+            
+            if (isAnimating) {
+                // Rotate current model slowly
+                if (currentModel === 'toilet') {
+                    toiletGroup.rotation.y += 0.001 * animationSpeed;
+                } else {
+                    cityGroup.rotation.y += 0.001 * animationSpeed;
+                }
+                
+                // Animate poop markers
+                poopMarkers.children.forEach((poop, index) => {
+                    poop.position.y = poop.userData.originalY + Math.sin(time * 2 + index * 0.1) * 2;
+                    poop.rotation.y += 0.02 * animationSpeed;
+                    poop.rotation.z += 0.01 * animationSpeed;
+                });
+                
+                // Update camera position based on rotation and distance
+                const x = Math.sin(cameraRotationY) * Math.cos(cameraRotationX) * cameraDistance;
+                const y = Math.sin(cameraRotationX) * cameraDistance + 50;
+                const z = Math.cos(cameraRotationY) * Math.cos(cameraRotationX) * cameraDistance;
+                
+                camera.position.set(x, y, z);
+                camera.lookAt(0, 0, 0);
+            }
+            
+            renderer.render(scene, camera);
+        }
+        
+        // Handle window resize
+        window.addEventListener('resize', () => {
+            camera.aspect = window.innerWidth / window.innerHeight;
+            camera.updateProjectionMatrix();
+            renderer.setSize(window.innerWidth, window.innerHeight);
+        });
+        
+        // Start animation and hide loading
+        animate();
+        setTimeout(() => {
+            document.getElementById('loading').style.display = 'none';
+        }, 2000);
+        
+        // Add some floating particles for atmosphere
+        const particleCount = 100;
+        const particles = new THREE.BufferGeometry();
+        const particlePositions = new Float32Array(particleCount * 3);
+        
+        for (let i = 0; i < particleCount * 3; i += 3) {
+            particlePositions[i] = (Math.random() - 0.5) * 400;
+            particlePositions[i + 1] = Math.random() * 100;
+            particlePositions[i + 2] = (Math.random() - 0.5) * 400;
+        }
+        
+        particles.setAttribute('position', new THREE.BufferAttribute(particlePositions, 3));
+        
+        const particleMaterial = new THREE.PointsMaterial({
+            color: 0xffffff,
+            size: 2,
+            transparent: true,
+            opacity: 0.6
+        });
+        
+        const particleSystem = new THREE.Points(particles, particleMaterial);
+        scene.add(particleSystem);
+        
+        // Animate particles
+        function animateParticles() {
+            particleSystem.rotation.y += 0.001;
+            particleSystem.children.forEach((particle, index) => {
+                if (particle.position) {
+                    particle.position.y += 0.1;
+                    if (particle.position.y > 100) {
+                        particle.position.y = 0;
+                    }
+                }
+            });
+        }
+        
+        // Add particle animation to main loop
+        const originalAnimate = animate;
+        animate = function() {
+            originalAnimate();
+            animateParticles();
+        };
+    </script>
+</body>
+</html>
