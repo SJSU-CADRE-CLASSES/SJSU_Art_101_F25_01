@@ -242,6 +242,37 @@
             }
         }
 
+        /* Chart toggle button styling */
+        .chart-toggle {
+            text-align: center;
+            margin: 20px 0;
+        }
+
+        .toggle-button {
+            background: linear-gradient(135deg, #2E8B57 0%, #4682B4 100%);
+            color: white;
+            padding: 12px 25px;
+            border: none;
+            border-radius: 25px;
+            cursor: pointer;
+            font-size: 1rem;
+            font-weight: 600;
+            margin: 0 10px;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+        }
+
+        .toggle-button:hover {
+            background: linear-gradient(135deg, #27AE60 0%, #3498DB 100%);
+            transform: translateY(-2px);
+            box-shadow: 0 6px 12px rgba(0,0,0,0.15);
+        }
+
+        .toggle-button.active {
+            background: linear-gradient(135deg, #27AE60 0%, #3498DB 100%);
+            box-shadow: 0 6px 12px rgba(0,0,0,0.15);
+        }
+
         @media (max-width: 768px) {
             .header h1 {
                 font-size: 2rem;
@@ -288,6 +319,11 @@
                 </div>
             </div>
 
+            <div class="chart-toggle">
+                <button class="toggle-button active" onclick="switchChart('line')">📈 Line Chart</button>
+                <button class="toggle-button" onclick="switchChart('bar')">📊 Bar Chart</button>
+            </div>
+            
             <div class="chart-container">
                 <canvas id="tuitionChart"></canvas>
             </div>
@@ -380,106 +416,137 @@
 
     <script>
         // Chart.js configuration
-        const ctx = document.getElementById('tuitionChart').getContext('2d');
+        let tuitionChart;
+        let currentChartType = 'line';
         
-        const tuitionChart = new Chart(ctx, {
-            type: 'line',
-            data: {
-                labels: ['2019-2020', '2020-2021', '2021-2022', '2022-2023', '2023-2024', '2024-2025'],
-                datasets: [{
-                    label: 'Annual Tuition & Fees ($)',
-                    data: [3836, 3836, 4372, 4678, 5084, 5490],
-                    borderColor: 'rgb(75, 192, 192)',
-                    backgroundColor: 'rgba(75, 192, 192, 0.1)',
-                    borderWidth: 4,
-                    fill: true,
-                    tension: 0.4,
-                    pointBackgroundColor: 'rgb(75, 192, 192)',
-                    pointBorderColor: '#fff',
-                    pointBorderWidth: 2,
-                    pointRadius: 6,
-                    pointHoverRadius: 8
-                }]
-            },
-            options: {
-                responsive: true,
-                maintainAspectRatio: false,
-                plugins: {
-                    title: {
-                        display: true,
-                        text: 'SJSU Tuition & Fees Trend (2019-2025)',
-                        font: {
-                            size: 18,
-                            weight: 'bold'
-                        },
-                        color: '#2c3e50'
-                    },
-                    legend: {
-                        display: true,
-                        position: 'top',
-                        labels: {
-                            font: {
-                                size: 14
-                            }
-                        }
-                    },
-                    tooltip: {
-                        backgroundColor: 'rgba(0, 0, 0, 0.8)',
-                        titleColor: '#fff',
-                        bodyColor: '#fff',
-                        borderColor: 'rgb(75, 192, 192)',
-                        borderWidth: 1,
-                        callbacks: {
-                            label: function(context) {
-                                return `Tuition: $${context.parsed.y.toLocaleString()}`;
-                            }
-                        }
-                    }
-                },
-                scales: {
-                    y: {
-                        beginAtZero: false,
-                        min: 3500,
-                        max: 6000,
-                        ticks: {
-                            callback: function(value) {
-                                return '$' + value.toLocaleString();
-                            },
-                            font: {
-                                size: 12
-                            }
-                        },
-                        title: {
-                            display: true,
-                            text: 'Tuition & Fees ($)',
-                            font: {
-                                size: 14,
-                                weight: 'bold'
-                            }
-                        }
-                    },
-                    x: {
-                        ticks: {
-                            font: {
-                                size: 12
-                            }
-                        },
-                        title: {
-                            display: true,
-                            text: 'Academic Year',
-                            font: {
-                                size: 14,
-                                weight: 'bold'
-                            }
-                        }
-                    }
-                },
-                interaction: {
-                    intersect: false,
-                    mode: 'index'
-                }
+        function createChart(type) {
+            const ctx = document.getElementById('tuitionChart').getContext('2d');
+            
+            // Destroy existing chart if it exists
+            if (tuitionChart) {
+                tuitionChart.destroy();
             }
-        });
+            
+            const chartConfig = {
+                type: type,
+                data: {
+                    labels: ['2019-2020', '2020-2021', '2021-2022', '2022-2023', '2023-2024', '2024-2025'],
+                    datasets: [{
+                        label: 'Annual Tuition & Fees ($)',
+                        data: [3836, 3836, 4372, 4678, 5084, 5490],
+                        borderColor: 'rgb(75, 192, 192)',
+                        backgroundColor: type === 'line' ? 'rgba(75, 192, 192, 0.1)' : 'rgba(75, 192, 192, 0.8)',
+                        borderWidth: 4,
+                        fill: type === 'line',
+                        tension: 0,
+                        pointBackgroundColor: 'rgb(75, 192, 192)',
+                        pointBorderColor: '#fff',
+                        pointBorderWidth: 2,
+                        pointRadius: 6,
+                        pointHoverRadius: 8
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        title: {
+                            display: true,
+                            text: 'SJSU Tuition & Fees Trend (2019-2025)',
+                            font: {
+                                size: 18,
+                                weight: 'bold'
+                            },
+                            color: '#2c3e50'
+                        },
+                        legend: {
+                            display: true,
+                            position: 'top',
+                            labels: {
+                                font: {
+                                    size: 14
+                                }
+                            }
+                        },
+                        tooltip: {
+                            backgroundColor: 'rgba(0, 0, 0, 0.8)',
+                            titleColor: '#fff',
+                            bodyColor: '#fff',
+                            borderColor: 'rgb(75, 192, 192)',
+                            borderWidth: 1,
+                            callbacks: {
+                                label: function(context) {
+                                    return `Tuition: $${context.parsed.y.toLocaleString()}`;
+                                }
+                            }
+                        }
+                    },
+                    scales: {
+                        y: {
+                            beginAtZero: false,
+                            min: 3500,
+                            max: 6000,
+                            ticks: {
+                                callback: function(value) {
+                                    return '$' + value.toLocaleString();
+                                },
+                                font: {
+                                    size: 12
+                                }
+                            },
+                            title: {
+                                display: true,
+                                text: 'Tuition & Fees ($)',
+                                font: {
+                                    size: 14,
+                                    weight: 'bold'
+                                }
+                            }
+                        },
+                        x: {
+                            ticks: {
+                                font: {
+                                    size: 12
+                                }
+                            },
+                            title: {
+                                display: true,
+                                text: 'Academic Year',
+                                font: {
+                                    size: 14,
+                                    weight: 'bold'
+                                }
+                            }
+                        }
+                    },
+                    interaction: {
+                        intersect: false,
+                        mode: 'index'
+                    }
+                }
+            };
+            
+            tuitionChart = new Chart(ctx, chartConfig);
+        }
+        
+        // Initialize chart
+        createChart('line');
+        
+        // Chart switching function
+        function switchChart(type) {
+            currentChartType = type;
+            createChart(type);
+            
+            // Update button states
+            const buttons = document.querySelectorAll('.toggle-button');
+            buttons.forEach(button => {
+                button.classList.remove('active');
+            });
+            
+            // Find and activate the clicked button
+            const activeButton = event.target;
+            activeButton.classList.add('active');
+        }
 
         // Add animation on scroll
         const observerOptions = {
