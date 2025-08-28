@@ -2,10 +2,10 @@
 class GarageVisualizer {
     constructor() {
         this.garages = {
-            A: { capacity: 500, current: 0 },
-            B: { capacity: 400, current: 0 },
-            C: { capacity: 600, current: 0 },
-            D: { capacity: 350, current: 0 }
+            north: { capacity: 500, current: 0 },
+            south: { capacity: 400, current: 0 },
+            'south-campus': { capacity: 600, current: 0 },
+            west: { capacity: 350, current: 0 }
         };
         
         this.currentTime = 8;
@@ -122,10 +122,10 @@ class GarageVisualizer {
     getBaseOccupancy(garageId) {
         // Different garages have different base occupancy rates
         const baseRates = {
-            A: 0.4, // 40% base occupancy
-            B: 0.5, // 50% base occupancy
-            C: 0.6, // 60% base occupancy (most popular)
-            D: 0.3  // 30% base occupancy
+            north: 0.4, // 40% base occupancy
+            south: 0.5, // 50% base occupancy
+            'south-campus': 0.6, // 60% base occupancy (most popular)
+            west: 0.3  // 30% base occupancy
         };
         
         return Math.floor(this.garages[garageId].capacity * baseRates[garageId]);
