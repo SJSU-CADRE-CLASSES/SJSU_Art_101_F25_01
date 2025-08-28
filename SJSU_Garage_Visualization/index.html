@@ -1,0 +1,118 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SJSU Garage Overcrowding - Creative Visualization</title>
+    <link rel="stylesheet" href="styles.css">
+    <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&family=Exo+2:wght@300;400;600&display=swap" rel="stylesheet">
+</head>
+<body>
+    <div class="container">
+        <header class="header">
+            <h1 class="title">🚗 SJSU Garage Overcrowding</h1>
+            <p class="subtitle">A Creative Visualization of Parking Chaos</p>
+        </header>
+
+        <div class="controls">
+            <div class="control-group">
+                <label for="timeSlider">Time of Day:</label>
+                <input type="range" id="timeSlider" min="0" max="23" value="8" class="slider">
+                <span id="timeDisplay">8:00 AM</span>
+            </div>
+            <div class="control-group">
+                <label for="daySelector">Day of Week:</label>
+                <select id="daySelector" class="day-select">
+                    <option value="1">Monday</option>
+                    <option value="2">Tuesday</option>
+                    <option value="3">Wednesday</option>
+                    <option value="4">Thursday</option>
+                    <option value="5">Friday</option>
+                    <option value="6">Saturday</option>
+                    <option value="0">Sunday</option>
+                </select>
+            </div>
+            <button id="animateBtn" class="animate-btn">🎬 Animate Day</button>
+        </div>
+
+        <div class="garage-container">
+            <div class="garage-grid">
+                <div class="garage garage-a" data-garage="A">
+                    <h3>Garage A</h3>
+                    <div class="parking-spots"></div>
+                    <div class="capacity-info">
+                        <span class="current">0</span>/<span class="total">500</span>
+                    </div>
+                </div>
+                <div class="garage garage-b" data-garage="B">
+                    <h3>Garage B</h3>
+                    <div class="parking-spots"></div>
+                    <div class="capacity-info">
+                        <span class="current">0</span>/<span class="total">400</span>
+                    </div>
+                </div>
+                <div class="garage garage-c" data-garage="C">
+                    <h3>Garage C</h3>
+                    <div class="parking-spots"></div>
+                    <div class="capacity-info">
+                        <span class="current">0</span>/<span class="total">600</span>
+                    </div>
+                </div>
+                <div class="garage garage-d" data-garage="D">
+                    <h3>Garage D</h3>
+                    <div class="parking-spots"></div>
+                    <div class="capacity-info">
+                        <span class="current">0</span>/<span class="total">350</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="stats-panel">
+            <div class="stat-card">
+                <h4>🚗 Total Cars</h4>
+                <div class="stat-value" id="totalCars">0</div>
+            </div>
+            <div class="stat-card">
+                <h4>📊 Occupancy Rate</h4>
+                <div class="stat-value" id="occupancyRate">0%</div>
+            </div>
+            <div class="stat-card">
+                <h4>😰 Stress Level</h4>
+                <div class="stat-value" id="stressLevel">😌</div>
+            </div>
+            <div class="stat-card">
+                <h4>⏰ Peak Time</h4>
+                <div class="stat-value" id="peakTime">--</div>
+            </div>
+        </div>
+
+        <div class="legend">
+            <div class="legend-item">
+                <div class="legend-color available"></div>
+                <span>Available</span>
+            </div>
+            <div class="legend-item">
+                <div class="legend-color occupied"></div>
+                <span>Occupied</span>
+            </div>
+            <div class="legend-item">
+                <div class="legend-color overcrowded"></div>
+                <span>Overcrowded</span>
+            </div>
+        </div>
+
+        <div class="fun-facts">
+            <h3>🎯 Fun Facts About SJSU Parking</h3>
+            <div class="facts-grid">
+                <div class="fact">The average student spends 15 minutes looking for parking</div>
+                <div class="fact">Garage C is the most popular during finals week</div>
+                <div class="fact">Tuesday 10 AM is peak parking chaos time</div>
+                <div class="fact">Some students arrive 2 hours early just for parking</div>
+            </div>
+        </div>
+    </div>
+
+    <script src="script.js"></script>
+</body>
+</html>
