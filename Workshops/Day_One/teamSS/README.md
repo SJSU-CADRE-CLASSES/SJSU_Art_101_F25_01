@@ -22,10 +22,10 @@ A creative, interactive website that visualizes parking overcrowding at San Jose
 
 ## 🏗️ Garage Information
 
-- **North Garage**: 500 spots (40% base occupancy)
-- **South Garage**: 400 spots (50% base occupancy)  
-- **South Campus Garage**: 600 spots (60% base occupancy - most popular)
-- **West Garage**: 350 spots (30% base occupancy)
+- **North Garage**: 450 spots (50% base occupancy - near Event Center)
+- **South Garage**: 380 spots (60% base occupancy - near Student Union, most popular)  
+- **West Garage**: 520 spots (40% base occupancy - near Engineering building)
+- **South Campus Garage**: 300 spots (30% base occupancy - off-campus)
 
 ## 🕐 Peak Times
 
@@ -38,9 +38,10 @@ A creative, interactive website that visualizes parking overcrowding at San Jose
 
 - **Modern UI**: Glassmorphism design with backdrop blur effects
 - **Color Coding**: 
-  - 🟢 Green: Available spots
-  - 🔴 Red: Occupied spots
-  - 🟠 Orange: Overcrowded spots (with pulsing animation)
+  - 🟢 Green: Available spots (0% occupancy - completely empty)
+  - 🟡 Yellow: Moderate occupancy (0-50% occupancy)
+  - 🔴 Red: High occupancy (50%+ occupancy)
+  - 🟠 Red with pulsing: Critical (90%+ occupancy)
 - **Responsive Grid**: Adapts to different screen sizes
 - **Smooth Animations**: CSS transitions and keyframe animations
 - **Custom Fonts**: Orbitron for headings, Exo 2 for body text
@@ -55,7 +56,7 @@ A creative, interactive website that visualizes parking overcrowding at San Jose
 ## 🎯 Fun Facts
 
 - The average student spends 15 minutes looking for parking
-- South Campus Garage is the most popular during finals week
+- South Garage is the most popular during finals week
 - Tuesday 10 AM is peak parking chaos time
 - Some students arrive 2 hours early just for parking
 

@@ -2,10 +2,10 @@
 class GarageVisualizer {
     constructor() {
         this.garages = {
-            north: { capacity: 500, current: 0 },
-            south: { capacity: 400, current: 0 },
-            'south-campus': { capacity: 600, current: 0 },
-            west: { capacity: 350, current: 0 }
+            north: { capacity: 450, current: 0 },
+            south: { capacity: 380, current: 0 },
+            west: { capacity: 520, current: 0 },
+            'south-campus': { capacity: 300, current: 0 }
         };
         
         this.currentTime = 8;
@@ -122,10 +122,10 @@ class GarageVisualizer {
     getBaseOccupancy(garageId) {
         // Different garages have different base occupancy rates
         const baseRates = {
-            north: 0.4, // 40% base occupancy
-            south: 0.5, // 50% base occupancy
-            'south-campus': 0.6, // 60% base occupancy (most popular)
-            west: 0.3  // 30% base occupancy
+            north: 0.5, // 50% base occupancy (near Event Center, popular for events)
+            south: 0.6, // 60% base occupancy (near Student Union, most popular)
+            west: 0.4, // 40% base occupancy (near Engineering building)
+            'south-campus': 0.3  // 30% base occupancy (off-campus, least popular)
         };
         
         return Math.floor(this.garages[garageId].capacity * baseRates[garageId]);
@@ -168,14 +168,19 @@ class GarageVisualizer {
                 spot.className = 'parking-spot';
                 
                 if (index < currentOccupancy) {
-                    // Check if overcrowded (over 90% capacity)
-                    if (currentOccupancy / capacity > 0.9) {
-                        spot.classList.add('overcrowded');
+                    // Check occupancy levels for different colors
+                    const occupancyRate = currentOccupancy / capacity;
+                    if (occupancyRate > 0.9) {
+                        spot.classList.add('overcrowded');  // Red - over 90%
+                    } else if (occupancyRate > 0.5) {
+                        spot.classList.add('occupied');     // Red - 50-90%
+                    } else if (occupancyRate > 0.0) {
+                        spot.classList.add('moderate');     // Yellow - 0-50%
                     } else {
-                        spot.classList.add('occupied');
+                        spot.classList.add('occupied');     // Red - under 0% (shouldn't happen)
                     }
                 } else {
-                    spot.classList.add('available');
+                    spot.classList.add('available');        // Green - empty
                 }
             });
         });
