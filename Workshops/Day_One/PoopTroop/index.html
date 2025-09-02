@@ -1,0 +1,1226 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SF Poop Map - 3D Toilet Visualization</title>
+    <style>
+        body {
+            margin: 0;
+            padding: 0;
+            background: 
+                radial-gradient(circle at 20% 80%, #ff6b9d 0%, transparent 50%),
+                radial-gradient(circle at 80% 20%, #4ecdc4 0%, transparent 50%),
+                radial-gradient(circle at 40% 40%, #45b7d1 0%, transparent 50%),
+                radial-gradient(circle at 90% 90%, #96ceb4 0%, transparent 50%),
+                linear-gradient(135deg, #ff9a9e 0%, #fecfef 25%, #fecfef 75%, #ff9a9e 100%);
+            font-family: 'Comic Sans MS', 'Arial', sans-serif;
+            overflow: hidden;
+            color: #2c1810;
+        }
+        
+        #container {
+            position: relative;
+            width: 100vw;
+            height: 100vh;
+        }
+        
+        #info {
+            position: absolute;
+            top: 20px;
+            left: 20px;
+            z-index: 100;
+            background: linear-gradient(135deg, #ff6b9d, #ff8e53);
+            padding: 25px;
+            border-radius: 20px;
+            border: 4px solid #2c1810;
+            box-shadow: 
+                0 8px 0 #2c1810,
+                0 16px 20px rgba(0,0,0,0.3);
+            transform: rotate(-2deg);
+            animation: bounce 3s ease-in-out infinite;
+        }
+        
+        #info h2 {
+            margin: 0 0 15px 0;
+            font-size: 28px;
+            text-shadow: 3px 3px 0 #ffeb3b;
+            transform: rotate(1deg);
+        }
+        
+        #info p {
+            margin: 8px 0;
+            font-size: 16px;
+            font-weight: bold;
+            text-shadow: 2px 2px 0 #fff;
+        }
+        
+        #controls {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            z-index: 100;
+            background: linear-gradient(135deg, #4ecdc4, #45b7d1);
+            padding: 20px;
+            border-radius: 20px;
+            border: 4px solid #2c1810;
+            box-shadow: 
+                0 8px 0 #2c1810,
+                0 16px 20px rgba(0,0,0,0.3);
+            transform: rotate(2deg);
+            animation: bounce 3s ease-in-out infinite 0.5s;
+            width: 280px;
+            max-height: 80vh;
+            overflow-y: auto;
+            overflow-x: hidden;
+        }
+        
+        .control-group {
+            margin-bottom: 15px;
+            padding: 12px;
+            background: rgba(255, 255, 255, 0.3);
+            border-radius: 15px;
+            border: 2px solid #2c1810;
+            transform: rotate(-1deg);
+        }
+        
+        .control-group:nth-child(even) {
+            transform: rotate(1deg);
+        }
+        
+        label {
+            display: block;
+            margin-bottom: 8px;
+            font-size: 16px;
+            color: #2c1810;
+            font-weight: bold;
+            text-shadow: 2px 2px 0 #fff;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+        
+        input[type="range"] {
+            width: 220px;
+            margin-bottom: 15px;
+            height: 8px;
+            border-radius: 4px;
+            background: linear-gradient(90deg, #ff6b9d, #4ecdc4, #ffeb3b, #ff8e53);
+            outline: none;
+            border: 2px solid #2c1810;
+        }
+        
+        input[type="range"]::-webkit-slider-thumb {
+            appearance: none;
+            width: 20px;
+            height: 20px;
+            border-radius: 50%;
+            background: #2c1810;
+            cursor: pointer;
+            border: 3px solid #fff;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.3);
+        }
+        
+        button {
+            background: linear-gradient(45deg, #ff6b9d, #ff8e53);
+            border: 3px solid #2c1810;
+            color: #2c1810;
+            padding: 12px 20px;
+            border-radius: 25px;
+            cursor: pointer;
+            margin: 5px;
+            font-size: 14px;
+            font-weight: bold;
+            font-family: 'Comic Sans MS', 'Arial', sans-serif;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 0 #2c1810;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        button::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255,255,255,0.4), transparent);
+            transition: left 0.5s;
+        }
+        
+        button:hover::before {
+            left: 100%;
+        }
+        
+        button:hover {
+            transform: translateY(-3px) scale(1.05);
+            box-shadow: 0 6px 0 #2c1810, 0 8px 15px rgba(0,0,0,0.3);
+        }
+        
+        button:active {
+            transform: translateY(0);
+            box-shadow: 0 2px 0 #2c1810;
+        }
+        
+                 #theme1 { background: linear-gradient(45deg, #ff6b9d, #ff8e53); }
+         #theme2 { background: linear-gradient(45deg, #4ecdc4, #45b7d1); }
+         #theme3 { background: linear-gradient(45deg, #96ceb4, #feca57); }
+         #theme4 { background: linear-gradient(45deg, #ff0000, #ff8000, #ffff00, #00ff00, #0080ff, #8000ff); }
+         #theme5 { background: linear-gradient(45deg, #ffb3d9, #b3d9ff, #d9ffb3, #ffd9b3, #d9b3ff, #b3ffd9); }
+         #toggleModel { background: linear-gradient(45deg, #ff9ff3, #54a0ff); }
+         #reset { background: linear-gradient(45deg, #ff6b6b, #ee5a24); }
+         #toggleAnimation { background: linear-gradient(45deg, #ff9ff3, #54a0ff); }
+        
+        #stats {
+            position: absolute;
+            bottom: 20px;
+            left: 20px;
+            z-index: 100;
+            background: linear-gradient(135deg, #96ceb4, #feca57);
+            padding: 20px;
+            border-radius: 20px;
+            border: 4px solid #2c1810;
+            box-shadow: 
+                0 8px 0 #2c1810,
+                0 16px 20px rgba(0,0,0,0.3);
+            transform: rotate(-1deg);
+            animation: bounce 3s ease-in-out infinite 1s;
+            font-size: 16px;
+            font-weight: bold;
+        }
+        
+        .poop-count {
+            color: #ff6b9d;
+            font-weight: bold;
+            text-shadow: 2px 2px 0 #fff;
+            font-size: 18px;
+        }
+        
+        #loading {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            z-index: 200;
+            background: linear-gradient(135deg, #ff6b9d, #4ecdc4, #ffeb3b, #ff8e53);
+            padding: 40px;
+            border-radius: 25px;
+            text-align: center;
+            border: 6px solid #2c1810;
+            box-shadow: 
+                0 12px 0 #2c1810,
+                0 24px 30px rgba(0,0,0,0.4);
+            animation: pulse 2s ease-in-out infinite;
+        }
+        
+        #loading div:last-child {
+            font-size: 20px;
+            font-weight: bold;
+            color: #2c1810;
+            text-shadow: 2px 2px 0 #fff;
+            margin-top: 20px;
+        }
+        
+        .spinner {
+            width: 50px;
+            height: 50px;
+            border: 6px solid rgba(255, 255, 255, 0.6);
+            border-top: 6px solid #2c1810;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+            margin: 0 auto 20px;
+            box-shadow: 0 0 20px rgba(44, 24, 16, 0.3);
+        }
+        
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+        
+        @keyframes bounce {
+            0%, 100% { transform: translateY(0) rotate(-2deg); }
+            50% { transform: translateY(-10px) rotate(-2deg); }
+        }
+        
+        @keyframes pulse {
+            0%, 100% { transform: translate(-50%, -50%) scale(1); }
+            50% { transform: translate(-50%, -50%) scale(1.05); }
+        }
+        
+        /* Pop-art decorative elements */
+        .control-group::before {
+            content: '🎨';
+            position: absolute;
+            top: -10px;
+            right: -10px;
+            font-size: 20px;
+            animation: rotate 4s linear infinite;
+        }
+        
+        .control-group:nth-child(2)::before { content: '🚽'; }
+        .control-group:nth-child(3)::before { content: '⚡'; }
+        .control-group:nth-child(4)::before { content: '🌈'; }
+        .control-group:nth-child(5)::before { content: '🎯'; }
+        .control-group:nth-child(6)::before { content: '💡'; }
+        
+        @keyframes rotate {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+        
+        /* Fun hover effects for sliders */
+        input[type="range"]:hover {
+            transform: scale(1.05);
+            transition: transform 0.3s ease;
+        }
+        
+        /* Add some fun patterns to the background */
+        body::before {
+            content: '';
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-image: 
+                radial-gradient(circle at 10% 20%, rgba(255, 107, 157, 0.1) 0%, transparent 20%),
+                radial-gradient(circle at 90% 80%, rgba(78, 205, 196, 0.1) 0%, transparent 20%),
+                radial-gradient(circle at 50% 50%, rgba(255, 235, 59, 0.1) 0%, transparent 30%);
+            pointer-events: none;
+            z-index: -1;
+        }
+        
+        /* Custom scrollbar styling for the controls panel */
+        #controls::-webkit-scrollbar {
+            width: 12px;
+        }
+        
+        #controls::-webkit-scrollbar-track {
+            background: rgba(255, 255, 255, 0.3);
+            border-radius: 6px;
+            border: 2px solid #2c1810;
+        }
+        
+        #controls::-webkit-scrollbar-thumb {
+            background: linear-gradient(45deg, #ff6b9d, #ff8e53);
+            border-radius: 6px;
+            border: 2px solid #2c1810;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.3);
+        }
+        
+        #controls::-webkit-scrollbar-thumb:hover {
+            background: linear-gradient(45deg, #ff8e53, #ff6b9d);
+            transform: scale(1.05);
+        }
+        
+        /* Firefox scrollbar styling */
+        #controls {
+            scrollbar-width: thin;
+            scrollbar-color: #ff6b9d rgba(255, 255, 255, 0.3);
+        }
+    </style>
+</head>
+<body>
+    <div id="container">
+        <div id="info">
+            <h2>🎨 SF Poop Map 🚽</h2>
+            <p>✨ 3D Pop-Art Visualization ✨</p>
+            <p>🎯 Click and drag to rotate, scroll to zoom 🎯</p>
+        </div>
+        
+        <div id="controls">
+            <div class="control-group">
+                <label>Model Type</label>
+                <button id="toggleModel">Switch to City</button>
+            </div>
+            <div class="control-group">
+                <label>Poop Density</label>
+                <input type="range" id="density" min="100" max="1000" value="500">
+            </div>
+            <div class="control-group">
+                <label>Animation Speed</label>
+                <input type="range" id="speed" min="0.1" max="2" value="1" step="0.1">
+            </div>
+                         <div class="control-group">
+                 <label>Color Theme</label>
+                 <button id="theme1">Classic</button>
+                 <button id="theme2">Neon</button>
+                 <button id="theme3">Earth</button>
+                 <button id="theme4">Rainbow</button>
+                 <button id="theme5">Pastel</button>
+             </div>
+                         <div class="control-group">
+                 <button id="reset">Reset View</button>
+                 <button id="toggleAnimation">Pause</button>
+             </div>
+             <div class="control-group">
+                 <label>Lighting Controls</label>
+                 <div style="margin-bottom: 10px;">
+                     <label style="font-size: 12px;">Ambient Light</label>
+                     <input type="range" id="ambientIntensity" min="0" max="1" value="0.6" step="0.1">
+                 </div>
+                 <div style="margin-bottom: 10px;">
+                     <label style="font-size: 12px;">Directional Light</label>
+                     <input type="range" id="directionalIntensity" min="0" max="2" value="0.8" step="0.1">
+                 </div>
+                 <div style="margin-bottom: 10px;">
+                     <label style="font-size: 12px;">Light Position X</label>
+                     <input type="range" id="lightPositionX" min="-100" max="100" value="50" step="5">
+                 </div>
+                 <div style="margin-bottom: 10px;">
+                     <label style="font-size: 12px;">Light Position Y</label>
+                     <input type="range" id="lightPositionY" min="0" max="100" value="50" step="5">
+                 </div>
+                 <div style="margin-bottom: 10px;">
+                     <label style="font-size: 12px;">Light Position Z</label>
+                     <input type="range" id="lightPositionZ" min="-100" max="100" value="50" step="5">
+                 </div>
+                 <button id="resetLighting">Reset Lighting</button>
+                 <div style="margin-top: 15px;">
+                     <label style="font-size: 12px;">Light Color</label>
+                     <input type="color" id="lightColor" value="#ffffff" style="width: 50px; height: 30px; border: 2px solid #2c1810; border-radius: 5px;">
+                 </div>
+                 <div style="margin-top: 10px;">
+                     <label style="font-size: 12px;">Shadows</label>
+                     <button id="toggleShadows" style="padding: 5px 10px; font-size: 10px;">On</button>
+                 </div>
+             </div>
+        </div>
+        
+        <div id="stats">
+            <div>Poop Markers: <span class="poop-count" id="poopCount">0</span></div>
+            <div>FPS: <span id="fps">0</span></div>
+        </div>
+        
+        <div id="loading">
+            <div class="spinner"></div>
+            <div>🎨 Building Pop-Art Toilet! 🚽</div>
+        </div>
+    </div>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+    <script>
+        // Scene setup
+        const scene = new THREE.Scene();
+        const camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
+        const renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
+        
+        renderer.setSize(window.innerWidth, window.innerHeight);
+        renderer.setClearColor(0x000000, 0);
+        renderer.shadowMap.enabled = true;
+        renderer.shadowMap.type = THREE.PCFSoftShadowMap;
+        
+        document.getElementById('container').appendChild(renderer.domElement);
+        
+        // Camera position
+        camera.position.set(0, 50, 100);
+        camera.lookAt(0, 0, 0);
+        
+        // Lighting
+        const ambientLight = new THREE.AmbientLight(0x404040, 0.6);
+        scene.add(ambientLight);
+        
+        const directionalLight = new THREE.DirectionalLight(0xffffff, 0.8);
+        directionalLight.position.set(50, 50, 50);
+        directionalLight.castShadow = true;
+        scene.add(directionalLight);
+        
+        // Model groups
+        const toiletGroup = new THREE.Group();
+        const cityGroup = new THREE.Group();
+        let currentModel = 'toilet'; // Track current model
+        
+        // Add both models to scene (city will be hidden initially)
+        scene.add(toiletGroup);
+        scene.add(cityGroup);
+        
+        // Big Toilet Model
+        // Toilet bowl (main part)
+        const bowlGeometry = new THREE.CylinderGeometry(25, 30, 20, 32);
+        const bowlMaterial = new THREE.MeshLambertMaterial({
+            color: 0xffffff,
+            transparent: true,
+            opacity: 0.9
+        });
+        const bowl = new THREE.Mesh(bowlGeometry, bowlMaterial);
+        bowl.position.set(0, 10, 0);
+        bowl.castShadow = true;
+        bowl.receiveShadow = true;
+        toiletGroup.add(bowl);
+        
+        // Toilet seat
+        const seatGeometry = new THREE.TorusGeometry(25, 3, 16, 32);
+        const seatMaterial = new THREE.MeshLambertMaterial({
+            color: 0xf5f5dc,
+            transparent: true,
+            opacity: 0.8
+        });
+        const seat = new THREE.Mesh(seatGeometry, seatMaterial);
+        seat.position.set(0, 20, 0);
+        seat.rotation.x = Math.PI / 2;
+        seat.castShadow = true;
+        seat.receiveShadow = true;
+        toiletGroup.add(seat);
+        
+        // Toilet tank
+        const tankGeometry = new THREE.BoxGeometry(40, 30, 15);
+        const tankMaterial = new THREE.MeshLambertMaterial({
+            color: 0xffffff,
+            transparent: true,
+            opacity: 0.9
+        });
+        const tank = new THREE.Mesh(tankGeometry, tankMaterial);
+        tank.position.set(0, 45, -20);
+        tank.castShadow = true;
+        tank.receiveShadow = true;
+        toiletGroup.add(tank);
+        
+        // Tank lid
+        const lidGeometry = new THREE.BoxGeometry(42, 5, 17);
+        const lidMaterial = new THREE.MeshLambertMaterial({
+            color: 0xf5f5dc,
+            transparent: true,
+            opacity: 0.8
+        });
+        const lid = new THREE.Mesh(lidGeometry, lidMaterial);
+        lid.position.set(0, 62.5, -20);
+        lid.castShadow = true;
+        lid.receiveShadow = true;
+        toiletGroup.add(lid);
+        
+        // Flush handle
+        const handleGeometry = new THREE.CylinderGeometry(1, 1, 8, 8);
+        const handleMaterial = new THREE.MeshLambertMaterial({
+            color: 0x8b4513
+        });
+        const handle = new THREE.Mesh(handleGeometry, handleMaterial);
+        handle.position.set(15, 50, -20);
+        handle.rotation.z = Math.PI / 2;
+        handle.castShadow = true;
+        toiletGroup.add(handle);
+        
+        // Toilet base/stand
+        const baseGeometry = new THREE.CylinderGeometry(35, 40, 10, 32);
+        const baseMaterial = new THREE.MeshLambertMaterial({
+            color: 0xcccccc,
+            transparent: true,
+            opacity: 0.8
+        });
+        const base = new THREE.Mesh(baseGeometry, baseMaterial);
+        base.position.set(0, 5, 0);
+        base.castShadow = true;
+        base.receiveShadow = true;
+        toiletGroup.add(base);
+        
+        // Water in bowl
+        const waterGeometry = new THREE.CylinderGeometry(20, 25, 15, 32);
+        const waterMaterial = new THREE.MeshLambertMaterial({
+            color: 0x87ceeb,
+            transparent: true,
+            opacity: 0.6
+        });
+        const water = new THREE.Mesh(waterGeometry, waterMaterial);
+        water.position.set(0, 7.5, 0);
+        water.castShadow = true;
+        water.receiveShadow = true;
+        toiletGroup.add(water);
+        
+        // San Francisco Realistic City Map
+        // Create terrain and buildings based on actual SF geography
+        
+        // SF terrain data - elevation map based on real topography
+        const terrainData = [
+            // Northwest (Golden Gate Bridge area) - high elevation
+            { x: -90, z: -90, height: 45, color: 0x8B4513, name: "Golden Gate Heights", density: 0.3 },
+            { x: -70, z: -70, height: 38, color: 0x8B4513, name: "Presidio Hills", density: 0.4 },
+            { x: -50, z: -90, height: 32, color: 0x8B4513, name: "Marina Heights", density: 0.6 },
+            { x: -30, z: -80, height: 28, color: 0x8B4513, name: "Pacific Heights", density: 0.7 },
+            
+            // Northeast (Financial District) - medium elevation
+            { x: 60, z: -70, height: 25, color: 0x4682B4, name: "Financial District", density: 0.9 },
+            { x: 80, z: -50, height: 22, color: 0x4682B4, name: "North Beach", density: 0.7 },
+            { x: 90, z: -30, height: 18, color: 0x4682B4, name: "Fisherman's Wharf", density: 0.6 },
+            { x: 70, z: -40, height: 20, color: 0x4682B4, name: "Chinatown", density: 0.8 },
+            
+            // Central (Downtown/Civic Center) - medium-high elevation
+            { x: 0, z: -30, height: 30, color: 0x32CD32, name: "Civic Center", density: 0.8 },
+            { x: -20, z: -10, height: 35, color: 0x32CD32, name: "Hayes Valley", density: 0.6 },
+            { x: 20, z: -10, height: 28, color: 0x32CD32, name: "Tenderloin", density: 0.7 },
+            { x: 10, z: -20, height: 32, color: 0x32CD32, name: "South of Market", density: 0.8 },
+            
+            // Southwest (Golden Gate Park) - medium elevation
+            { x: -70, z: 50, height: 25, color: 0xFFD700, name: "Golden Gate Park", density: 0.2 },
+            { x: -90, z: 70, height: 28, color: 0xFFD700, name: "Sunset District", density: 0.5 },
+            { x: -50, z: 70, height: 22, color: 0xFFD700, name: "Richmond District", density: 0.5 },
+            { x: -30, z: 60, height: 26, color: 0xFFD700, name: "Haight-Ashbury", density: 0.6 },
+            
+            // Southeast (Mission District) - lower elevation
+            { x: 50, z: 50, height: 18, color: 0xCD853F, name: "Mission District", density: 0.7 },
+            { x: 70, z: 70, height: 15, color: 0xCD853F, name: "Potrero Hill", density: 0.6 },
+            { x: 90, z: 90, height: 12, color: 0xCD853F, name: "Bayview", density: 0.5 },
+            { x: 30, z: 40, height: 20, color: 0xCD853F, name: "Castro District", density: 0.6 },
+            
+            // Central Hills (Twin Peaks area) - highest elevation
+            { x: -20, z: -50, height: 55, color: 0x1E90FF, name: "Twin Peaks", density: 0.1 },
+            { x: 0, z: -50, height: 52, color: 0x1E90FF, name: "Mount Davidson", density: 0.1 },
+            { x: -40, z: -30, height: 48, color: 0x1E90FF, name: "Dolores Heights", density: 0.3 },
+            { x: 40, z: -40, height: 42, color: 0x1E90FF, name: "Bernal Heights", density: 0.4 },
+            
+            // Water areas (San Francisco Bay)
+            { x: 100, z: -100, height: 0, color: 0x87CEEB, name: "San Francisco Bay", density: 0 },
+            { x: -100, z: 100, height: 0, color: 0x87CEEB, name: "Pacific Ocean", density: 0 }
+        ];
+        
+        // Create terrain blocks with building density
+        terrainData.forEach(terrain => {
+            if (terrain.height > 0) {
+                // Create terrain base
+                const geometry = new THREE.BoxGeometry(20, terrain.height, 20);
+                const material = new THREE.MeshLambertMaterial({
+                    color: terrain.color,
+                    transparent: true,
+                    opacity: 0.8
+                });
+                
+                const terrainBlock = new THREE.Mesh(geometry, material);
+                terrainBlock.position.set(terrain.x, terrain.height / 2, terrain.z);
+                terrainBlock.castShadow = true;
+                terrainBlock.receiveShadow = true;
+                terrainBlock.userData = { name: terrain.name, height: terrain.height, density: terrain.density };
+                cityGroup.add(terrainBlock);
+                
+                // Add buildings based on density
+                if (terrain.density > 0) {
+                    const buildingCount = Math.floor(terrain.density * 15);
+                    for (let i = 0; i < buildingCount; i++) {
+                        const buildingHeight = Math.random() * (terrain.height * 0.8) + (terrain.height * 0.2);
+                        const buildingGeometry = new THREE.BoxGeometry(
+                            3 + Math.random() * 4,
+                            buildingHeight,
+                            3 + Math.random() * 4
+                        );
+                        
+                        // Vary building colors within neighborhood
+                        let buildingColor = terrain.color;
+                        if (Math.random() > 0.7) {
+                            buildingColor = new THREE.Color(terrain.color).multiplyScalar(0.8 + Math.random() * 0.4);
+                        }
+                        
+                        const buildingMaterial = new THREE.MeshLambertMaterial({
+                            color: buildingColor,
+                            transparent: true,
+                            opacity: 0.9
+                        });
+                        
+                        const building = new THREE.Mesh(buildingGeometry, buildingMaterial);
+                        
+                        // Position buildings within terrain area
+                        const offsetX = (Math.random() - 0.5) * 16;
+                        const offsetZ = (Math.random() - 0.5) * 16;
+                        building.position.set(
+                            terrain.x + offsetX,
+                            terrain.height + buildingHeight / 2,
+                            terrain.z + offsetZ
+                        );
+                        
+                        building.castShadow = true;
+                        building.receiveShadow = true;
+                        cityGroup.add(building);
+                    }
+                }
+            }
+        });
+        
+        // Add major landmarks at their actual relative positions
+        const landmarks = [
+            { pos: [60, -70], height: 55, color: 0x1E90FF, name: "Salesforce Tower", scale: 1.4, type: "skyscraper" },
+            { pos: [80, -50], height: 48, color: 0x4169E1, name: "Transamerica Pyramid", scale: 1.2, type: "skyscraper" },
+            { pos: [-20, -50], height: 65, color: 0x00CED1, name: "Twin Peaks", scale: 2.0, type: "natural" },
+            { pos: [-90, -90], height: 52, color: 0xFFD700, name: "Golden Gate Bridge", scale: 1.6, type: "bridge" },
+            { pos: [90, -30], height: 30, color: 0xFF69B4, name: "Fisherman's Wharf", scale: 1.0, type: "landmark" },
+            { pos: [-70, 50], height: 35, color: 0x32CD32, name: "Golden Gate Park", scale: 1.3, type: "park" },
+            { pos: [50, 50], height: 25, color: 0xCD853F, name: "Mission District", scale: 1.0, type: "neighborhood" },
+            { pos: [-50, 70], height: 28, color: 0xFFD700, name: "Richmond District", scale: 1.1, type: "neighborhood" },
+            { pos: [30, -40], height: 38, color: 0x4169E1, name: "Coit Tower", scale: 1.5, type: "tower" },
+            { pos: [-30, 60], height: 32, color: 0xFFD700, name: "Haight-Ashbury", scale: 1.0, type: "neighborhood" }
+        ];
+        
+        landmarks.forEach(landmark => {
+            let geometry;
+            if (landmark.type === 'skyscraper') {
+                geometry = new THREE.BoxGeometry(15 * landmark.scale, landmark.height, 15 * landmark.scale);
+            } else if (landmark.type === 'tower') {
+                geometry = new THREE.CylinderGeometry(8 * landmark.scale, 8 * landmark.scale, landmark.height, 16);
+            } else if (landmark.type === 'bridge') {
+                geometry = new THREE.BoxGeometry(25 * landmark.scale, 8, 15 * landmark.scale);
+            } else if (landmark.type === 'natural') {
+                geometry = new THREE.ConeGeometry(20 * landmark.scale, landmark.height, 8);
+            } else {
+                geometry = new THREE.BoxGeometry(20 * landmark.scale, landmark.height, 20 * landmark.scale);
+            }
+            
+            const material = new THREE.MeshLambertMaterial({
+                color: landmark.color,
+                transparent: true,
+                opacity: 0.9
+            });
+            
+            const building = new THREE.Mesh(geometry, material);
+            building.position.set(landmark.pos[0], landmark.height / 2, landmark.pos[1]);
+            building.castShadow = true;
+            building.receiveShadow = true;
+            building.userData = { name: landmark.name, height: landmark.height, type: landmark.type };
+            cityGroup.add(building);
+        });
+        
+        // Add coastline and water features
+        const coastline = [
+            // Northern coastline (Golden Gate to Fisherman's Wharf)
+            { x: -90, z: -90, width: 180, depth: 10, height: 3, color: 0x87CEEB },
+            // Eastern coastline (Fisherman's Wharf to Bayview)
+            { x: 90, z: -30, width: 10, depth: 240, height: 3, color: 0x87CEEB },
+            // Southern coastline (Bayview to Sunset)
+            { x: -90, z: 90, width: 180, depth: 10, height: 3, color: 0x87CEEB },
+            // Western coastline (Sunset to Golden Gate)
+            { x: -90, z: 90, width: 10, depth: 180, height: 3, color: 0x87CEEB }
+        ];
+        
+        coastline.forEach(water => {
+            const geometry = new THREE.BoxGeometry(water.width, water.height, water.depth);
+            const material = new THREE.MeshLambertMaterial({
+                color: water.color,
+                transparent: true,
+                opacity: 0.6
+            });
+            
+            const waterBlock = new THREE.Mesh(geometry, material);
+            waterBlock.position.set(water.x, water.height / 2, water.z);
+            waterBlock.receiveShadow = true;
+            cityGroup.add(waterBlock);
+        });
+        
+        // Initially hide city grid
+        cityGroup.visible = false;
+        
+        // Function to get terrain height at any position
+        function getTerrainHeight(x, z) {
+            // Find the closest terrain block and interpolate height
+            let minDistance = Infinity;
+            let closestHeight = 0;
+            
+            terrainData.forEach(terrain => {
+                if (terrain.height > 0) {
+                    const distance = Math.sqrt((x - terrain.x) ** 2 + (z - terrain.z) ** 2);
+                    if (distance < minDistance) {
+                        minDistance = distance;
+                        closestHeight = terrain.height;
+                    }
+                }
+            });
+            
+            // Apply some terrain variation based on distance from center
+            const centerDistance = Math.sqrt(x ** 2 + z ** 2);
+            const elevationVariation = Math.sin(centerDistance * 0.02) * 8;
+            
+            return Math.max(0, closestHeight + elevationVariation);
+        }
+        
+        // Poop markers
+        const poopMarkers = new THREE.Group();
+        scene.add(poopMarkers);
+        
+        // Poop marker geometry
+        const poopGeometry = new THREE.SphereGeometry(1, 8, 6);
+        
+        // Create poop markers
+        function createPoopMarkers(count) {
+            poopMarkers.clear();
+            
+            for (let i = 0; i < count; i++) {
+                const material = new THREE.MeshLambertMaterial({
+                    color: new THREE.Color().setHSL(0.1, 0.8, 0.4 + Math.random() * 0.3),
+                    transparent: true,
+                    opacity: 0.8
+                });
+                
+                const poop = new THREE.Mesh(poopGeometry, material);
+                
+                let x, y, z;
+                const placement = Math.random();
+                
+                if (currentModel === 'toilet') {
+                    // Position poop markers on and around the toilet
+                    if (placement < 0.3) {
+                        // Inside the bowl
+                        x = (Math.random() - 0.5) * 40;
+                        y = 5 + Math.random() * 10;
+                        z = (Math.random() - 0.5) * 40;
+                    } else if (placement < 0.6) {
+                        // Around the base
+                        const angle = Math.random() * Math.PI * 2;
+                        const radius = 35 + Math.random() * 20;
+                        x = Math.cos(angle) * radius;
+                        y = 2 + Math.random() * 3;
+                        z = Math.sin(angle) * radius;
+                    } else if (placement < 0.8) {
+                        // On the seat
+                        x = (Math.random() - 0.5) * 40;
+                        y = 20 + Math.random() * 2;
+                        z = (Math.random() - 0.5) * 40;
+                    } else {
+                        // Floating around the toilet
+                        x = (Math.random() - 0.5) * 100;
+                        y = 10 + Math.random() * 60;
+                        z = (Math.random() - 0.5) * 100;
+                    }
+                } else {
+                    // Position poop markers around the realistic SF map
+                    if (placement < 0.3) {
+                        // On the terrain (hills and valleys)
+                        x = (Math.random() - 0.5) * 180;
+                        z = (Math.random() - 0.5) * 180;
+                        // Find terrain height at this position
+                        y = getTerrainHeight(x, z) + 2;
+                    } else if (placement < 0.6) {
+                        // Around landmarks
+                        const landmarkPositions = [
+                            { x: 60, z: -70 }, // Salesforce Tower
+                            { x: 80, z: -50 }, // Transamerica Pyramid
+                            { x: -20, z: -50 }, // Twin Peaks
+                            { x: -90, z: -90 }, // Golden Gate Bridge
+                            { x: 90, z: -30 }, // Fisherman's Wharf
+                            { x: -70, z: 50 }, // Golden Gate Park
+                            { x: 50, z: 50 },  // Mission District
+                            { x: -50, z: 70 }, // Richmond District
+                            { x: 30, z: -40 }, // Coit Tower
+                            { x: -30, z: 60 }  // Haight-Ashbury
+                        ];
+                        const landmark = landmarkPositions[Math.floor(Math.random() * landmarkPositions.length)];
+                        const angle = Math.random() * Math.PI * 2;
+                        const radius = 20 + Math.random() * 25;
+                        x = landmark.x + Math.cos(angle) * radius;
+                        z = landmark.z + Math.sin(angle) * radius;
+                        y = getTerrainHeight(x, z) + 3;
+                    } else {
+                        // Floating above the cityscape
+                        x = (Math.random() - 0.5) * 180;
+                        y = 50 + Math.random() * 40;
+                        z = (Math.random() - 0.5) * 180;
+                    }
+                }
+                
+                poop.position.set(x, y, z);
+                
+                poop.scale.set(
+                    0.5 + Math.random() * 1.5,
+                    0.5 + Math.random() * 1.5,
+                    0.5 + Math.random() * 1.5
+                );
+                
+                poop.castShadow = true;
+                poop.userData = { originalY: poop.position.y };
+                poopMarkers.add(poop);
+            }
+            
+            document.getElementById('poopCount').textContent = count;
+        }
+        
+        // Initial poop markers
+        createPoopMarkers(500);
+        
+        // Animation variables
+        let animationSpeed = 1;
+        let isAnimating = true;
+        let clock = new THREE.Clock();
+        let frameCount = 0;
+        let lastTime = 0;
+        
+        // Camera controls
+        let isMouseDown = false;
+        let mouseX = 0;
+        let mouseY = 0;
+        let lastMouseX = 0;
+        let lastMouseY = 0;
+        let cameraDistance = 100;
+        let cameraRotationX = 0;
+        let cameraRotationY = 0;
+        
+        // Event listeners
+        document.addEventListener('mousedown', (event) => {
+            isMouseDown = true;
+            lastMouseX = event.clientX;
+            lastMouseY = event.clientY;
+        });
+        
+        document.addEventListener('mouseup', (event) => {
+            isMouseDown = false;
+        });
+        
+        document.addEventListener('mousemove', (event) => {
+            if (isMouseDown) {
+                const deltaX = event.clientX - lastMouseX;
+                const deltaY = event.clientY - lastMouseY;
+                
+                cameraRotationY += deltaX * 0.01;
+                cameraRotationX += deltaY * 0.01;
+                
+                // Limit vertical rotation to prevent flipping
+                cameraRotationX = Math.max(-Math.PI / 2, Math.min(Math.PI / 2, cameraRotationX));
+                
+                lastMouseX = event.clientX;
+                lastMouseY = event.clientY;
+            }
+        });
+        
+        document.addEventListener('wheel', (event) => {
+            // Zoom in/out with mouse wheel
+            cameraDistance += event.deltaY * 0.5;
+            cameraDistance = Math.max(30, Math.min(200, cameraDistance));
+        });
+        
+        // Control panel functionality
+        document.getElementById('density').addEventListener('input', (e) => {
+            createPoopMarkers(parseInt(e.target.value));
+        });
+        
+        document.getElementById('speed').addEventListener('input', (e) => {
+            animationSpeed = parseFloat(e.target.value);
+        });
+        
+        document.getElementById('reset').addEventListener('click', () => {
+            cameraDistance = 100;
+            cameraRotationX = 0;
+            cameraRotationY = 0;
+        });
+        
+                 document.getElementById('toggleAnimation').addEventListener('click', () => {
+             isAnimating = !isAnimating;
+             document.getElementById('toggleAnimation').textContent = isAnimating ? 'Pause' : 'Play';
+         });
+         
+         // Lighting controls
+         document.getElementById('ambientIntensity').addEventListener('input', (e) => {
+             ambientLight.intensity = parseFloat(e.target.value);
+         });
+         
+         document.getElementById('directionalIntensity').addEventListener('input', (e) => {
+             directionalLight.intensity = parseFloat(e.target.value);
+         });
+         
+         document.getElementById('lightPositionX').addEventListener('input', (e) => {
+             directionalLight.position.x = parseFloat(e.target.value);
+         });
+         
+         document.getElementById('lightPositionY').addEventListener('input', (e) => {
+             directionalLight.position.y = parseFloat(e.target.value);
+         });
+         
+         document.getElementById('lightPositionZ').addEventListener('input', (e) => {
+             directionalLight.position.z = parseFloat(e.target.value);
+         });
+         
+         document.getElementById('resetLighting').addEventListener('click', () => {
+             // Reset lighting to default values
+             ambientLight.intensity = 0.6;
+             directionalLight.intensity = 0.8;
+             directionalLight.position.set(50, 50, 50);
+             
+             // Reset slider values
+             document.getElementById('ambientIntensity').value = 0.6;
+             document.getElementById('directionalIntensity').value = 0.8;
+             document.getElementById('lightPositionX').value = 50;
+             document.getElementById('lightPositionY').value = 50;
+             document.getElementById('lightPositionZ').value = 50;
+             
+             // Reset light color
+             directionalLight.color.setHex(0xffffff);
+             document.getElementById('lightColor').value = '#ffffff';
+         });
+         
+         // Light color control
+         document.getElementById('lightColor').addEventListener('input', (e) => {
+             directionalLight.color.setHex(parseInt(e.target.value.replace('#', '0x')));
+         });
+         
+         // Shadow toggle
+         let shadowsEnabled = true;
+         document.getElementById('toggleShadows').addEventListener('click', () => {
+             shadowsEnabled = !shadowsEnabled;
+             renderer.shadowMap.enabled = shadowsEnabled;
+             directionalLight.castShadow = shadowsEnabled;
+             
+             // Update button text
+             document.getElementById('toggleShadows').textContent = shadowsEnabled ? 'On' : 'Off';
+             
+             // Update button style
+             if (shadowsEnabled) {
+                 document.getElementById('toggleShadows').style.background = 'linear-gradient(45deg, #4ecdc4, #45b7d1)';
+             } else {
+                 document.getElementById('toggleShadows').style.background = 'linear-gradient(45deg, #ff6b6b, #ee5a24)';
+             }
+         });
+        
+        // Model toggle functionality
+        document.getElementById('toggleModel').addEventListener('click', () => {
+            if (currentModel === 'toilet') {
+                // Switch to city
+                currentModel = 'city';
+                toiletGroup.visible = false;
+                cityGroup.visible = true;
+                document.getElementById('toggleModel').textContent = 'Switch to Toilet';
+                document.getElementById('info').querySelector('h2').textContent = '🏙️ SF Poop Map';
+                document.getElementById('info').querySelector('p:nth-child(2)').textContent = '3D City Visualization';
+            } else {
+                // Switch to toilet
+                currentModel = 'toilet';
+                toiletGroup.visible = true;
+                cityGroup.visible = false;
+                document.getElementById('toggleModel').textContent = 'Switch to City';
+                document.getElementById('info').querySelector('h2').textContent = '🚽 SF Poop Map';
+                document.getElementById('info').querySelector('p:nth-child(2)').textContent = '3D Toilet Visualization';
+            }
+            
+            // Regenerate poop markers for the new model
+            createPoopMarkers(parseInt(document.getElementById('density').value));
+        });
+        
+                 // Theme buttons
+         const themes = {
+             classic: { 
+                 poop: 0x8B4513, 
+                 bowl: 0xffffff, 
+                 seat: 0xf5f5dc, 
+                 tank: 0xffffff, 
+                 water: 0x87ceeb,
+                 building1: 0x4682B4, building2: 0x32CD32, building3: 0xFFD700, building4: 0xCD853F,
+                 ambient: 0x404040 
+             },
+             neon: { 
+                 poop: 0xFF1493, 
+                 bowl: 0x00ffff, 
+                 seat: 0xff00ff, 
+                 tank: 0x00ff00, 
+                 water: 0x0080ff,
+                 building1: 0x00ffff, building2: 0xff00ff, building3: 0x00ff00, building4: 0xff1493,
+                 ambient: 0x1a1a2e 
+             },
+             earth: { 
+                 poop: 0x654321, 
+                 bowl: 0xf4a460, 
+                 seat: 0x8b4513, 
+                 tank: 0xcd853f, 
+                 water: 0x4682b4,
+                 building1: 0x8b4513, building2: 0x556b2f, building3: 0xdaa520, building4: 0x654321,
+                 ambient: 0x2F4F2F 
+             },
+             rainbow: { 
+                 poop: 0xFF0000, 
+                 bowl: 0xFF8000, 
+                 seat: 0xFFFF00, 
+                 tank: 0x00FF00, 
+                 water: 0x0080FF,
+                 building1: 0xFF0000, building2: 0xFF8000, building3: 0xFFFF00, building4: 0x00FF00,
+                 ambient: 0x8000FF 
+             },
+             pastel: { 
+                 poop: 0xFFB3D9, 
+                 bowl: 0xB3D9FF, 
+                 seat: 0xD9FFB3, 
+                 tank: 0xFFD9B3, 
+                 water: 0xD9B3FF,
+                 building1: 0xFFB3D9, building2: 0xB3D9FF, building3: 0xD9FFB3, building4: 0xFFD9B3,
+                 ambient: 0xB3FFD9 
+             }
+         };
+        
+        Object.keys(themes).forEach((theme, index) => {
+            document.getElementById(`theme${index + 1}`).addEventListener('click', () => {
+                const colors = themes[theme];
+                
+                // Update poop colors
+                poopMarkers.children.forEach(poop => {
+                    poop.material.color.setHex(colors.poop);
+                });
+                
+                // Update toilet colors
+                bowl.material.color.setHex(colors.bowl);
+                seat.material.color.setHex(colors.seat);
+                tank.material.color.setHex(colors.tank);
+                water.material.color.setHex(colors.water);
+                
+                // Update city terrain and landmark colors
+                cityGroup.children.forEach((building) => {
+                    if (building.userData && building.userData.name) {
+                        // Apply colors based on building type and neighborhood
+                        if (building.userData.type === 'skyscraper') {
+                            building.material.color.setHex(colors.building1);
+                        } else if (building.userData.type === 'tower') {
+                            building.material.color.setHex(colors.building2);
+                        } else if (building.userData.type === 'park' || building.userData.type === 'natural') {
+                            building.material.color.setHex(colors.building3);
+                        } else if (building.userData.type === 'neighborhood') {
+                            building.material.color.setHex(colors.building4);
+                        } else {
+                            // For terrain blocks, use neighborhood-based coloring
+                            const name = building.userData.name.toLowerCase();
+                            if (name.includes('financial') || name.includes('downtown')) {
+                                building.material.color.setHex(colors.building1);
+                            } else if (name.includes('mission') || name.includes('castro')) {
+                                building.material.color.setHex(colors.building2);
+                            } else if (name.includes('park') || name.includes('golden gate')) {
+                                building.material.color.setHex(colors.building3);
+                            } else {
+                                building.material.color.setHex(colors.building4);
+                            }
+                        }
+                    }
+                });
+                
+                // Update ambient light
+                ambientLight.color.setHex(colors.ambient);
+                
+                // Update lighting controls to match theme
+                if (theme === 'neon') {
+                    // Neon theme - bright, colorful lighting
+                    ambientLight.intensity = 0.8;
+                    directionalLight.intensity = 1.2;
+                    directionalLight.color.setHex(0x00ffff);
+                    document.getElementById('ambientIntensity').value = 0.8;
+                    document.getElementById('directionalIntensity').value = 1.2;
+                    document.getElementById('lightColor').value = '#00ffff';
+                                 } else if (theme === 'earth') {
+                     // Earth theme - warm, natural lighting
+                     ambientLight.intensity = 0.7;
+                     directionalLight.intensity = 0.9;
+                     directionalLight.color.setHex(0xffd700);
+                     document.getElementById('ambientIntensity').value = 0.7;
+                     document.getElementById('directionalIntensity').value = 0.9;
+                     document.getElementById('lightColor').value = '#ffd700';
+                 } else if (theme === 'rainbow') {
+                     // Rainbow theme - vibrant, colorful lighting
+                     ambientLight.intensity = 0.9;
+                     directionalLight.intensity = 1.5;
+                     directionalLight.color.setHex(0xff1493);
+                     document.getElementById('ambientIntensity').value = 0.9;
+                     document.getElementById('directionalIntensity').value = 1.5;
+                     document.getElementById('lightColor').value = '#ff1493';
+                 } else if (theme === 'pastel') {
+                     // Pastel theme - soft, gentle lighting
+                     ambientLight.intensity = 0.8;
+                     directionalLight.intensity = 0.6;
+                     directionalLight.color.setHex(0xffb3d9);
+                     document.getElementById('ambientIntensity').value = 0.8;
+                     document.getElementById('directionalIntensity').value = 0.6;
+                     document.getElementById('lightColor').value = '#ffb3d9';
+                 } else {
+                     // Classic theme - balanced lighting
+                     ambientLight.intensity = 0.6;
+                     directionalLight.intensity = 0.8;
+                     directionalLight.color.setHex(0xffffff);
+                     document.getElementById('ambientIntensity').value = 0.6;
+                     document.getElementById('directionalIntensity').value = 0.8;
+                     document.getElementById('lightColor').value = '#ffffff';
+                 }
+            });
+        });
+        
+        // Animation loop
+        function animate() {
+            requestAnimationFrame(animate);
+            
+            const time = clock.getElapsedTime();
+            frameCount++;
+            
+            if (time - lastTime >= 1) {
+                document.getElementById('fps').textContent = frameCount;
+                frameCount = 0;
+                lastTime = time;
+            }
+            
+            if (isAnimating) {
+                // Rotate current model slowly
+                if (currentModel === 'toilet') {
+                    toiletGroup.rotation.y += 0.001 * animationSpeed;
+                } else {
+                    cityGroup.rotation.y += 0.001 * animationSpeed;
+                }
+                
+                // Animate poop markers
+                poopMarkers.children.forEach((poop, index) => {
+                    poop.position.y = poop.userData.originalY + Math.sin(time * 2 + index * 0.1) * 2;
+                    poop.rotation.y += 0.02 * animationSpeed;
+                    poop.rotation.z += 0.01 * animationSpeed;
+                });
+                
+                // Update camera position based on rotation and distance
+                const x = Math.sin(cameraRotationY) * Math.cos(cameraRotationX) * cameraDistance;
+                const y = Math.sin(cameraRotationX) * cameraDistance + 50;
+                const z = Math.cos(cameraRotationY) * Math.cos(cameraRotationX) * cameraDistance;
+                
+                camera.position.set(x, y, z);
+                camera.lookAt(0, 0, 0);
+            }
+            
+            renderer.render(scene, camera);
+        }
+        
+        // Handle window resize
+        window.addEventListener('resize', () => {
+            camera.aspect = window.innerWidth / window.innerHeight;
+            camera.updateProjectionMatrix();
+            renderer.setSize(window.innerWidth, window.innerHeight);
+        });
+        
+        // Start animation and hide loading
+        animate();
+        setTimeout(() => {
+            document.getElementById('loading').style.display = 'none';
+        }, 2000);
+        
+        // Add some floating particles for atmosphere
+        const particleCount = 100;
+        const particles = new THREE.BufferGeometry();
+        const particlePositions = new Float32Array(particleCount * 3);
+        
+        for (let i = 0; i < particleCount * 3; i += 3) {
+            particlePositions[i] = (Math.random() - 0.5) * 400;
+            particlePositions[i + 1] = Math.random() * 100;
+            particlePositions[i + 2] = (Math.random() - 0.5) * 400;
+        }
+        
+        particles.setAttribute('position', new THREE.BufferAttribute(particlePositions, 3));
+        
+        const particleMaterial = new THREE.PointsMaterial({
+            color: 0xffffff,
+            size: 2,
+            transparent: true,
+            opacity: 0.6
+        });
+        
+        const particleSystem = new THREE.Points(particles, particleMaterial);
+        scene.add(particleSystem);
+        
+        // Animate particles
+        function animateParticles() {
+            particleSystem.rotation.y += 0.001;
+            particleSystem.children.forEach((particle, index) => {
+                if (particle.position) {
+                    particle.position.y += 0.1;
+                    if (particle.position.y > 100) {
+                        particle.position.y = 0;
+                    }
+                }
+            });
+        }
+        
+        // Add particle animation to main loop
+        const originalAnimate = animate;
+        animate = function() {
+            originalAnimate();
+            animateParticles();
+        };
+    </script>
+</body>
+</html>
