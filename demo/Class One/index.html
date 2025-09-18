@@ -1,0 +1,117 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Portfolio • Professional Showcase</title>
+    <meta name="description" content="A professional, responsive portfolio grid with filters and lightbox." />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet" />
+    <link rel="stylesheet" href="assets/css/styles.css" />
+  </head>
+  <body>
+    <a class="skip-link" href="#portfolio">Skip to portfolio</a>
+
+    <header class="site-header" role="banner">
+      <div class="container header-inner">
+        <div class="brand">
+          <span class="logo" aria-hidden="true">◆</span>
+          <a href="#" class="brand-name">Studio One</a>
+        </div>
+        <nav class="site-nav" aria-label="Primary">
+          <ul>
+            <li><a href="#about">About</a></li>
+            <li><a href="#portfolio">Work</a></li>
+            <li><a href="#contact">Contact</a></li>
+          </ul>
+        </nav>
+        <button id="themeToggle" class="btn btn-ghost" type="button" aria-pressed="false" aria-label="Toggle dark mode">🌓</button>
+      </div>
+    </header>
+
+    <main id="main" class="site-main" role="main">
+      <section class="hero" id="about">
+        <div class="container">
+          <h1 class="headline">Designing delightful digital products</h1>
+          <p class="subhead">A curated selection of recent projects across web, mobile, and brand.</p>
+        </div>
+      </section>
+
+      <section class="filters" aria-labelledby="filter-heading">
+        <div class="container">
+          <div class="filters-inner">
+            <h2 id="filter-heading" class="visually-hidden">Filter projects</h2>
+            <div id="filterButtons" class="filter-buttons" role="tablist" aria-label="Project categories">
+              <!-- JS will render filter buttons here -->
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section id="portfolio" class="portfolio" aria-labelledby="portfolio-heading">
+        <div class="container">
+          <div class="section-head">
+            <h2 id="portfolio-heading">Selected Work</h2>
+          </div>
+          <div id="grid" class="grid" aria-live="polite">
+            <!-- JS will render cards here -->
+          </div>
+        </div>
+      </section>
+
+      <section id="contact" class="contact">
+        <div class="container">
+          <div class="contact-card">
+            <h2>Let’s build something great</h2>
+            <p>Have an idea or project in mind? I’d love to hear about it.</p>
+            <a href="mailto:hello@example.com" class="btn btn-primary">Get in touch</a>
+          </div>
+        </div>
+      </section>
+    </main>
+
+    <div id="lightbox" class="lightbox" role="dialog" aria-modal="true" aria-labelledby="lightbox-title" hidden>
+      <div class="lightbox-backdrop" data-close></div>
+      <div class="lightbox-content" role="document">
+        <button class="lightbox-close btn btn-ghost" type="button" aria-label="Close" data-close>&times;</button>
+        <button class="lightbox-nav prev" type="button" aria-label="Previous project" data-prev>&larr;</button>
+        <button class="lightbox-nav next" type="button" aria-label="Next project" data-next>&rarr;</button>
+        <figure class="lightbox-figure">
+          <img id="lightbox-image" alt="" />
+          <figcaption>
+            <h3 id="lightbox-title"></h3>
+            <p id="lightbox-desc"></p>
+          </figcaption>
+        </figure>
+      </div>
+    </div>
+
+    <footer class="site-footer" role="contentinfo">
+      <div class="container footer-inner">
+        <p>&copy; <span id="year"></span> Studio One. All rights reserved.</p>
+        <a href="#" class="to-top" aria-label="Back to top">Back to top ↑</a>
+      </div>
+    </footer>
+
+    <noscript>
+      <div class="noscript-msg">This site works best with JavaScript enabled.</div>
+    </noscript>
+
+    <script defer src="assets/js/main.js"></script>
+  </body>
+  <script>
+    // Inlined minimal script to set theme early to avoid flash
+    (function(){
+      try {
+        var stored = localStorage.getItem('theme');
+        var mql = window.matchMedia('(prefers-color-scheme: dark)');
+        if (stored === 'dark' || (!stored && mql.matches)) {
+          document.documentElement.classList.add('theme-dark');
+        }
+      } catch (e) {}
+    })();
+  </script>
+  </html>
+
+

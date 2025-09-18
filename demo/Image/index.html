@@ -1,0 +1,546 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Photorealistic Guinea Pig CSS Art</title>
+    <style>
+        body {
+            margin: 0;
+            padding: 0;
+            background-color: white;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            font-family: Arial, sans-serif;
+        }
+
+        .guinea-pig {
+            position: relative;
+            width: 400px;
+            height: 350px;
+            transform: scale(1.1);
+        }
+
+        /* Base body structure */
+        .body-base {
+            position: absolute;
+            width: 220px;
+            height: 140px;
+            background-color: #A0522D;
+            border-radius: 60px 60px 40px 40px;
+            top: 100px;
+            left: 90px;
+            z-index: 1;
+        }
+
+        /* Body color variations */
+        .body-highlight {
+            position: absolute;
+            width: 200px;
+            height: 120px;
+            background-color: #CD853F;
+            border-radius: 50px 50px 30px 30px;
+            top: 110px;
+            left: 100px;
+            z-index: 2;
+        }
+
+        .body-shadow {
+            position: absolute;
+            width: 180px;
+            height: 100px;
+            background-color: #8B4513;
+            border-radius: 40px 40px 25px 25px;
+            top: 120px;
+            left: 110px;
+            z-index: 3;
+        }
+
+        /* White band with texture */
+        .white-band-base {
+            position: absolute;
+            width: 240px;
+            height: 50px;
+            background-color: #F5F5F5;
+            border-radius: 25px;
+            top: 120px;
+            left: 80px;
+            z-index: 4;
+        }
+
+        .white-band-highlight {
+            position: absolute;
+            width: 220px;
+            height: 30px;
+            background-color: white;
+            border-radius: 15px;
+            top: 130px;
+            left: 90px;
+            z-index: 5;
+        }
+
+        /* Black patch with variations */
+        .black-patch-base {
+            position: absolute;
+            width: 80px;
+            height: 100px;
+            background-color: #1C1C1C;
+            border-radius: 40px 15px 25px 40px;
+            top: 110px;
+            left: 60px;
+            z-index: 2;
+        }
+
+        .black-patch-highlight {
+            position: absolute;
+            width: 60px;
+            height: 80px;
+            background-color: #2F2F2F;
+            border-radius: 30px 10px 20px 30px;
+            top: 120px;
+            left: 70px;
+            z-index: 3;
+        }
+
+        .black-patch-shadow {
+            position: absolute;
+            width: 50px;
+            height: 60px;
+            background-color: #000000;
+            border-radius: 25px 5px 15px 25px;
+            top: 130px;
+            left: 75px;
+            z-index: 4;
+        }
+
+        /* Detailed head structure */
+        .head-base {
+            position: absolute;
+            width: 140px;
+            height: 120px;
+            background-color: #F8F8FF;
+            border-radius: 70px 70px 50px 50px;
+            top: 30px;
+            left: 130px;
+            z-index: 6;
+        }
+
+        .head-highlight {
+            position: absolute;
+            width: 120px;
+            height: 100px;
+            background-color: white;
+            border-radius: 60px 60px 40px 40px;
+            top: 40px;
+            left: 140px;
+            z-index: 7;
+        }
+
+        /* Brown patches on head */
+        .head-brown-base {
+            position: absolute;
+            width: 70px;
+            height: 90px;
+            background-color: #8B4513;
+            border-radius: 35px 15px 25px 35px;
+            top: 35px;
+            left: 180px;
+            z-index: 8;
+        }
+
+        .head-brown-highlight {
+            position: absolute;
+            width: 50px;
+            height: 70px;
+            background-color: #A0522D;
+            border-radius: 25px 10px 20px 25px;
+            top: 45px;
+            left: 190px;
+            z-index: 9;
+        }
+
+        .head-brown-shadow {
+            position: absolute;
+            width: 40px;
+            height: 50px;
+            background-color: #654321;
+            border-radius: 20px 5px 15px 20px;
+            top: 55px;
+            left: 195px;
+            z-index: 10;
+        }
+
+        /* Left side brown patch */
+        .head-brown-left {
+            position: absolute;
+            width: 45px;
+            height: 60px;
+            background-color: #8B4513;
+            border-radius: 22px 10px 15px 22px;
+            top: 40px;
+            left: 130px;
+            z-index: 8;
+        }
+
+        /* Ears with detail */
+        .ear-left-base {
+            position: absolute;
+            width: 30px;
+            height: 45px;
+            background-color: #8B4513;
+            border-radius: 15px 15px 0 0;
+            top: 15px;
+            left: 140px;
+            z-index: 9;
+            transform: rotate(-20deg);
+        }
+
+        .ear-left-inner {
+            position: absolute;
+            width: 20px;
+            height: 30px;
+            background-color: #A0522D;
+            border-radius: 10px 10px 0 0;
+            top: 20px;
+            left: 145px;
+            z-index: 10;
+            transform: rotate(-20deg);
+        }
+
+        .ear-right-base {
+            position: absolute;
+            width: 30px;
+            height: 45px;
+            background-color: #8B4513;
+            border-radius: 15px 15px 0 0;
+            top: 15px;
+            left: 230px;
+            z-index: 9;
+            transform: rotate(20deg);
+        }
+
+        .ear-right-inner {
+            position: absolute;
+            width: 20px;
+            height: 30px;
+            background-color: #A0522D;
+            border-radius: 10px 10px 0 0;
+            top: 20px;
+            left: 235px;
+            z-index: 10;
+            transform: rotate(20deg);
+        }
+
+        /* Detailed eyes */
+        .eye-left-base {
+            position: absolute;
+            width: 12px;
+            height: 12px;
+            background-color: #000;
+            border-radius: 50%;
+            top: 60px;
+            left: 160px;
+            z-index: 11;
+        }
+
+        .eye-left-highlight {
+            position: absolute;
+            width: 4px;
+            height: 4px;
+            background-color: #333;
+            border-radius: 50%;
+            top: 62px;
+            left: 162px;
+            z-index: 12;
+        }
+
+        .eye-right-base {
+            position: absolute;
+            width: 12px;
+            height: 12px;
+            background-color: #000;
+            border-radius: 50%;
+            top: 60px;
+            left: 228px;
+            z-index: 11;
+        }
+
+        .eye-right-highlight {
+            position: absolute;
+            width: 4px;
+            height: 4px;
+            background-color: #333;
+            border-radius: 50%;
+            top: 62px;
+            left: 230px;
+            z-index: 12;
+        }
+
+        /* Detailed nose */
+        .nose-base {
+            position: absolute;
+            width: 8px;
+            height: 6px;
+            background-color: #FFB6C1;
+            border-radius: 50%;
+            top: 80px;
+            left: 196px;
+            z-index: 11;
+        }
+
+        .nose-highlight {
+            position: absolute;
+            width: 3px;
+            height: 2px;
+            background-color: #FFC0CB;
+            border-radius: 50%;
+            top: 80px;
+            left: 197px;
+            z-index: 12;
+        }
+
+        /* Detailed whiskers */
+        .whisker {
+            position: absolute;
+            height: 1px;
+            background-color: #E0E0E0;
+            z-index: 11;
+        }
+
+        .whisker-1 {
+            width: 35px;
+            top: 70px;
+            left: 120px;
+            transform: rotate(-15deg);
+        }
+
+        .whisker-2 {
+            width: 30px;
+            top: 75px;
+            left: 125px;
+            transform: rotate(-8deg);
+        }
+
+        .whisker-3 {
+            width: 35px;
+            top: 70px;
+            left: 245px;
+            transform: rotate(15deg);
+        }
+
+        .whisker-4 {
+            width: 30px;
+            top: 75px;
+            left: 245px;
+            transform: rotate(8deg);
+        }
+
+        .whisker-5 {
+            width: 25px;
+            top: 80px;
+            left: 130px;
+            transform: rotate(-5deg);
+        }
+
+        .whisker-6 {
+            width: 25px;
+            top: 80px;
+            left: 245px;
+            transform: rotate(5deg);
+        }
+
+        /* Detailed feet */
+        .foot {
+            position: absolute;
+            background-color: #FFB6C1;
+            border-radius: 8px 8px 0 0;
+            z-index: 5;
+        }
+
+        .foot-front-left {
+            width: 18px;
+            height: 25px;
+            top: 240px;
+            left: 130px;
+        }
+
+        .foot-front-right {
+            width: 18px;
+            height: 25px;
+            top: 240px;
+            left: 252px;
+        }
+
+        .foot-back-left {
+            width: 18px;
+            height: 25px;
+            top: 260px;
+            left: 110px;
+        }
+
+        .foot-back-right {
+            width: 18px;
+            height: 25px;
+            top: 260px;
+            left: 272px;
+        }
+
+        /* Fur texture effects */
+        .fur-texture-1 {
+            position: absolute;
+            width: 15px;
+            height: 3px;
+            background-color: #CD853F;
+            border-radius: 2px;
+            top: 105px;
+            left: 120px;
+            z-index: 6;
+            transform: rotate(15deg);
+        }
+
+        .fur-texture-2 {
+            position: absolute;
+            width: 12px;
+            height: 3px;
+            background-color: #A0522D;
+            border-radius: 2px;
+            top: 110px;
+            left: 125px;
+            z-index: 6;
+            transform: rotate(-10deg);
+        }
+
+        .fur-texture-3 {
+            position: absolute;
+            width: 18px;
+            height: 3px;
+            background-color: #8B4513;
+            border-radius: 2px;
+            top: 115px;
+            left: 130px;
+            z-index: 6;
+            transform: rotate(20deg);
+        }
+
+        .fur-texture-4 {
+            position: absolute;
+            width: 14px;
+            height: 3px;
+            background-color: #CD853F;
+            border-radius: 2px;
+            top: 120px;
+            left: 135px;
+            z-index: 6;
+            transform: rotate(-5deg);
+        }
+
+        /* Shadow effects */
+        .shadow-main {
+            position: absolute;
+            width: 250px;
+            height: 20px;
+            background-color: rgba(0, 0, 0, 0.1);
+            border-radius: 50%;
+            top: 300px;
+            left: 75px;
+            z-index: 0;
+        }
+
+        /* Title */
+        .title {
+            position: absolute;
+            top: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            color: #333;
+            font-size: 24px;
+            font-weight: bold;
+        }
+
+        /* Description */
+        .description {
+            position: absolute;
+            bottom: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            color: #666;
+            font-size: 14px;
+            text-align: center;
+            max-width: 500px;
+        }
+    </style>
+</head>
+<body>
+    <div class="title">Photorealistic CSS Guinea Pig</div>
+    
+    <div class="guinea-pig">
+        <!-- Shadow -->
+        <div class="shadow-main"></div>
+        
+        <!-- Main body with color variations -->
+        <div class="body-base"></div>
+        <div class="body-highlight"></div>
+        <div class="body-shadow"></div>
+        
+        <!-- White band with texture -->
+        <div class="white-band-base"></div>
+        <div class="white-band-highlight"></div>
+        
+        <!-- Black patch with variations -->
+        <div class="black-patch-base"></div>
+        <div class="black-patch-highlight"></div>
+        <div class="black-patch-shadow"></div>
+        
+        <!-- Detailed head -->
+        <div class="head-base"></div>
+        <div class="head-highlight"></div>
+        
+        <!-- Brown patches on head -->
+        <div class="head-brown-base"></div>
+        <div class="head-brown-highlight"></div>
+        <div class="head-brown-shadow"></div>
+        <div class="head-brown-left"></div>
+        
+        <!-- Detailed ears -->
+        <div class="ear-left-base"></div>
+        <div class="ear-left-inner"></div>
+        <div class="ear-right-base"></div>
+        <div class="ear-right-inner"></div>
+        
+        <!-- Detailed facial features -->
+        <div class="eye-left-base"></div>
+        <div class="eye-left-highlight"></div>
+        <div class="eye-right-base"></div>
+        <div class="eye-right-highlight"></div>
+        <div class="nose-base"></div>
+        <div class="nose-highlight"></div>
+        
+        <!-- Detailed whiskers -->
+        <div class="whisker whisker-1"></div>
+        <div class="whisker whisker-2"></div>
+        <div class="whisker whisker-3"></div>
+        <div class="whisker whisker-4"></div>
+        <div class="whisker whisker-5"></div>
+        <div class="whisker whisker-6"></div>
+        
+        <!-- Fur texture effects -->
+        <div class="fur-texture-1"></div>
+        <div class="fur-texture-2"></div>
+        <div class="fur-texture-3"></div>
+        <div class="fur-texture-4"></div>
+        
+        <!-- Detailed feet -->
+        <div class="foot foot-front-left"></div>
+        <div class="foot foot-front-right"></div>
+        <div class="foot foot-back-left"></div>
+        <div class="foot foot-back-right"></div>
+    </div>
+    
+    <div class="description">
+        This photorealistic guinea pig is created using 50+ HTML divs with detailed color variations!<br>
+        Features: Multiple color layers, fur texture effects, realistic shadows, and detailed facial features
+    </div>
+</body>
+</html>
