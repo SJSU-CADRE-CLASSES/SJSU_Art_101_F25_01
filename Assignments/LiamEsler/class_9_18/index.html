@@ -1,0 +1,90 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+</head>
+<body>
+    <script>
+        let caught = 5*5;
+
+        console.log('caught=', caught);
+
+        let ten = 10;
+
+        console.log(ten*ten);
+
+        let bobDebt = 140;
+        bobDebt = bobDebt - 35;
+
+        console.log(bobDebt);
+
+        var name = 'bob';
+        const greeting = 'Hello';
+        
+        console.log(greeting+' '+name);
+
+        console.log(Math.max(2,4,8,100,100.1));
+
+        // let userNumber = Number(prompt('Insert a number'));
+        // console.log('your number is the square root of '+userNumber*userNumber);
+
+        // userNumber = Number(prompt('pick a number'));
+        // if (!Number.isNaN(userNumber)) {
+        //     console.log('your number is the square root of '+userNumber*userNumber); 
+        // }
+        // else {
+        //     console.log('bruh thats not a number');
+        // }
+
+        // let num = Number(prompt('provide a number'))
+
+        // if (num<10) {
+        //     console.log("number small")
+        // }
+        // else if (num < 100) {
+        //     console.log("number medium")
+        // }
+        // else if (num < 1000) {
+        //     console.log("number large")
+        // }
+        // else if (num > 1000) {
+        //     console.log("number really large")
+        // }
+
+        let number = 0;
+        while(number <=20) {
+            console.log(number);
+            number = number +2;
+        }
+
+        let result = 1;
+        let counter = 0
+        while (counter < 10) {
+            result = result*2;
+            counter++;
+        }
+        console.log(result);
+
+        let yourName;
+        do {
+            yourName = prompt('enter your name');
+        }
+        while(!yourName);
+        console.log('hello '+yourName);
+
+        for (let damn = 1; damn<10; damn = damn*2){
+            console.log(damn);
+        }
+
+        let thisResult = 1;
+        for (let counter = 0; counter < 15; counter++){
+            thisResult=thisResult*2;
+        }
+        console.log(thisResult);
+
+
+    </script>
+</body>
+</html>
