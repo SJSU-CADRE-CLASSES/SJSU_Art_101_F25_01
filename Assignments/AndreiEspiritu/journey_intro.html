@@ -234,6 +234,11 @@
       min-width: 250px;
       max-width: 300px;
       font-family: 'MS Sans Serif', sans-serif;
+      cursor: move;
+    }
+    
+    .popup.dragging {
+      cursor: grabbing;
     }
     
     .popup.show {
@@ -246,15 +251,15 @@
       100% { opacity: 1; transform: scale(1); }
     }
     
-    /* Scattered popup positions */
-    .popup:nth-of-type(1) { top: 20%; left: 20%; }
-    .popup:nth-of-type(2) { top: 30%; right: 20%; }
-    .popup:nth-of-type(3) { top: 60%; left: 15%; }
-    .popup:nth-of-type(4) { top: 70%; right: 15%; }
-    .popup:nth-of-type(5) { bottom: 30%; left: 25%; }
-    .popup:nth-of-type(6) { bottom: 20%; right: 25%; }
-    .popup:nth-of-type(7) { top: 45%; left: 10%; }
-    .popup:nth-of-type(8) { top: 55%; right: 10%; }
+    /* Extremely scattered popup positions - avoiding center */
+    .popup:nth-of-type(1) { top: 5%; left: 5%; }
+    .popup:nth-of-type(2) { top: 5%; right: 5%; }
+    .popup:nth-of-type(3) { top: 15%; left: 2%; }
+    .popup:nth-of-type(4) { top: 15%; right: 2%; }
+    .popup:nth-of-type(5) { bottom: 5%; left: 5%; }
+    .popup:nth-of-type(6) { bottom: 5%; right: 5%; }
+    .popup:nth-of-type(7) { bottom: 15%; left: 2%; }
+    .popup:nth-of-type(8) { bottom: 15%; right: 2%; }
     
     .popup-header {
       background: #000080;
@@ -319,10 +324,60 @@
       document.getElementById('popup' + index).classList.remove('show');
     }
     
-    // Close popups when clicking outside
+    // Make popups draggable
     for (let i = 0; i < 8; i++) {
-      document.getElementById('popup' + i).addEventListener('click', function(e) {
-        if (e.target === this) closePopup(i);
+      const popup = document.getElementById('popup' + i);
+      let isDragging = false;
+      let currentX;
+      let currentY;
+      let initialX;
+      let initialY;
+      let xOffset = 0;
+      let yOffset = 0;
+      
+      // Mouse down on popup header
+      popup.querySelector('.popup-header').addEventListener('mousedown', dragStart);
+      document.addEventListener('mousemove', drag);
+      document.addEventListener('mouseup', dragEnd);
+      
+      function dragStart(e) {
+        if (e.target.classList.contains('popup-close')) return; // Don't drag when clicking close button
+        
+        initialX = e.clientX - xOffset;
+        initialY = e.clientY - yOffset;
+        
+        if (e.target === popup.querySelector('.popup-header') || popup.contains(e.target)) {
+          isDragging = true;
+          popup.classList.add('dragging');
+        }
+      }
+      
+      function drag(e) {
+        if (isDragging) {
+          e.preventDefault();
+          currentX = e.clientX - initialX;
+          currentY = e.clientY - initialY;
+          
+          xOffset = currentX;
+          yOffset = currentY;
+          
+          popup.style.left = currentX + 'px';
+          popup.style.top = currentY + 'px';
+          popup.style.right = 'auto';
+          popup.style.bottom = 'auto';
+        }
+      }
+      
+      function dragEnd(e) {
+        initialX = currentX;
+        initialY = currentY;
+        isDragging = false;
+        popup.classList.remove('dragging');
+      }
+      
+      // Close popup when clicking outside (but not when dragging)
+      popup.addEventListener('click', function(e) {
+        if (e.target === this && !isDragging) closePopup(i);
       });
     }
   </script>
