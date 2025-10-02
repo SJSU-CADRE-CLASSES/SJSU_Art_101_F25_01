@@ -8,9 +8,63 @@
     body {
       margin: 0;
       padding: 0;
-      background: #0b0b0c;
+      background: linear-gradient(45deg, #ffa500, #ff8c00, #ffa500);
+      background-size: 400% 400%;
+      animation: constructionGradient 3s ease infinite;
       color: #e8e8e8;
       font-family: Arial, sans-serif;
+      position: relative;
+      overflow-x: hidden;
+    }
+    
+    @keyframes constructionGradient {
+      0% { background-position: 0% 50%; }
+      50% { background-position: 100% 50%; }
+      100% { background-position: 0% 50%; }
+    }
+    
+    body::before {
+      content: "🚧 UNDER CONSTRUCTION 🚧";
+      position: fixed;
+      top: 20px;
+      left: 50%;
+      transform: translateX(-50%);
+      background: #ff6b35;
+      color: white;
+      padding: 10px 20px;
+      border-radius: 25px;
+      font-size: 18px;
+      font-weight: bold;
+      z-index: 1000;
+      animation: bounce 2s infinite;
+      box-shadow: 0 4px 15px rgba(0,0,0,0.3);
+    }
+    
+    @keyframes bounce {
+      0%, 20%, 50%, 80%, 100% { transform: translateX(-50%) translateY(0); }
+      40% { transform: translateX(-50%) translateY(-10px); }
+      60% { transform: translateX(-50%) translateY(-5px); }
+    }
+    
+    body::after {
+      content: "⚠️ This procrastination data is being analyzed by a very slow intern ⚠️";
+      position: fixed;
+      bottom: 20px;
+      left: 50%;
+      transform: translateX(-50%);
+      background: rgba(255, 107, 53, 0.9);
+      color: white;
+      padding: 8px 16px;
+      border-radius: 20px;
+      font-size: 14px;
+      z-index: 1000;
+      animation: pulse 1.5s infinite;
+    }
+    
+    @keyframes pulse {
+      0% { opacity: 0.7; }
+      50% { opacity: 1; }
+      100% { opacity: 0.7; }
     }
     .bar {
       position: fixed;
