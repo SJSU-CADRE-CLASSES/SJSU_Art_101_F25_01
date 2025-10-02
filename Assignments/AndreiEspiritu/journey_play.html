@@ -8,11 +8,16 @@
     body {
       margin: 0;
       padding: 0;
-      background: linear-gradient(45deg, #ffa500, #ff8c00, #ffa500);
-      background-size: 400% 400%;
-      animation: constructionGradient 3s ease infinite;
-      color: #e8e8e8;
-      font-family: Arial, sans-serif;
+      background: #008080;
+      background-image: 
+        linear-gradient(45deg, #c0c0c0 25%, transparent 25%),
+        linear-gradient(-45deg, #c0c0c0 25%, transparent 25%),
+        linear-gradient(45deg, transparent 75%, #c0c0c0 75%),
+        linear-gradient(-45deg, transparent 75%, #c0c0c0 75%);
+      background-size: 20px 20px;
+      background-position: 0 0, 0 10px, 10px -10px, -10px 0px;
+      color: #000000;
+      font-family: 'MS Sans Serif', sans-serif;
       position: relative;
       overflow-x: hidden;
     }
@@ -66,34 +71,131 @@
       50% { opacity: 1; }
       100% { opacity: 0.7; }
     }
+    
+    /* Windows-style sidebar */
+    .sidebar {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 120px;
+      height: 100vh;
+      background: #c0c0c0;
+      border-right: 2px outset #c0c0c0;
+      z-index: 999;
+      display: flex;
+      flex-direction: column;
+      padding: 4px;
+      gap: 2px;
+    }
+    
+    .sidebar-header {
+      background: #000080;
+      color: white;
+      padding: 2px 4px;
+      font-size: 10px;
+      font-family: 'MS Sans Serif', sans-serif;
+      text-align: center;
+      margin-bottom: 4px;
+    }
+    
+    .fake-button {
+      background: #c0c0c0;
+      border: 2px outset #c0c0c0;
+      padding: 4px 6px;
+      font-size: 10px;
+      cursor: pointer;
+      font-family: 'MS Sans Serif', sans-serif;
+      width: 100%;
+      text-align: left;
+      margin-bottom: 1px;
+    }
+    
+    .fake-button:hover {
+      background: #d0d0d0;
+    }
+    
+    .fake-button:active {
+      border: 2px inset #c0c0c0;
+    }
+    
+    .popup {
+      position: fixed;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      background: #ff4500;
+      color: white;
+      padding: 20px 30px;
+      border-radius: 15px;
+      font-size: 16px;
+      font-weight: bold;
+      z-index: 1001;
+      box-shadow: 0 8px 25px rgba(0,0,0,0.5);
+      display: none;
+      text-align: center;
+      max-width: 300px;
+      border: 3px solid #ff6b35;
+    }
+    
+    .popup.show {
+      display: block;
+      animation: popupBounce 0.5s ease;
+    }
+    
+    @keyframes popupBounce {
+      0% { transform: translate(-50%, -50%) scale(0.5); opacity: 0; }
+      50% { transform: translate(-50%, -50%) scale(1.1); }
+      100% { transform: translate(-50%, -50%) scale(1); opacity: 1; }
+    }
+    
+    .popup-close {
+      position: absolute;
+      top: 5px;
+      right: 10px;
+      background: none;
+      border: none;
+      color: white;
+      font-size: 20px;
+      cursor: pointer;
+      font-weight: bold;
+    }
     .bar {
       position: fixed;
       top: 0;
       left: 0;
       right: 0;
-      background: #141417;
-      border-bottom: 1px solid #222;
-      padding: 10px 14px;
+      background: #c0c0c0;
+      border-bottom: 2px outset #c0c0c0;
+      padding: 4px 8px;
       display: flex;
       align-items: center;
-      gap: 16px;
+      gap: 4px;
       z-index: 10;
+      font-family: 'MS Sans Serif', sans-serif;
     }
     .bar button {
-      background: #2a2a30;
-      color: #ddd;
-      border: 1px solid #3a3a45;
-      padding: 8px 12px;
-      border-radius: 6px;
+      background: #c0c0c0;
+      color: #000000;
+      border: 2px outset #c0c0c0;
+      padding: 4px 8px;
       cursor: pointer;
+      font-family: 'MS Sans Serif', sans-serif;
+      font-size: 11px;
     }
-    .bar button:hover { background: #34343c; }
+    .bar button:hover { background: #d0d0d0; }
+    .bar button:active { border: 2px inset #c0c0c0; }
     .canvas-wrap {
       display: grid;
       place-items: center;
       height: 100vh;
     }
-    canvas { width: 90vw; height: 60vh; background: #0f0f12; border: 1px solid #1f1f26; border-radius: 10px; }
+    canvas { 
+      width: 90vw; 
+      height: 60vh; 
+      background: #c0c0c0; 
+      border: 2px outset #c0c0c0; 
+      box-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+    }
     .hint { position: fixed; bottom: 12px; left: 50%; transform: translateX(-50%); font-size: 14px; color: #aaa; }
     .tooltip { position: fixed; pointer-events: none; background: rgba(0,0,0,0.85); color: #fff; padding: 6px 10px; border-radius: 6px; font-size: 12px; border: 1px solid #333; display: none; }
   </style>
@@ -121,6 +223,25 @@
   </div>
   <div class="hint">Hover bars • Click to pin highlight • Arrow keys change metric • S to sort • R to reflect</div>
   <div class="tooltip" id="tip"></div>
+  
+  <!-- Windows-style sidebar -->
+  <div class="sidebar">
+    <div class="sidebar-header">Chart Tools</div>
+    <button class="fake-button" onclick="showPopup(0)">Launch</button>
+    <button class="fake-button" onclick="showPopup(1)">Turbo</button>
+    <button class="fake-button" onclick="showPopup(2)">Tools</button>
+    <button class="fake-button" onclick="showPopup(3)">Settings</button>
+    <button class="fake-button" onclick="showPopup(4)">Export</button>
+    <button class="fake-button" onclick="showPopup(5)">Custom</button>
+    <button class="fake-button" onclick="showPopup(6)">Save</button>
+    <button class="fake-button" onclick="showPopup(7)">Refresh</button>
+  </div>
+  
+  <!-- Popup -->
+  <div class="popup" id="popup">
+    <button class="popup-close" onclick="closePopup()">×</button>
+    <div id="popupText"></div>
+  </div>
 
   <script>
     // Canonical metric keys used by the dataset
@@ -178,33 +299,33 @@
         const h = (d.value/maxVal) * (barAreaH - 20);
         const y = H - margin - h;
         const isPinned = (pinnedIndex === i);
-        const color = isPinned ? '#ff7a00' : '#6fa8ff';
+        const color = isPinned ? '#000080' : '#008080';
         ctx.fillStyle = color;
         // animated height easing
         ctx.save();
-        ctx.shadowColor = 'rgba(0,0,0,0.4)';
-        ctx.shadowBlur = isPinned ? 16 : 8;
+        ctx.shadowColor = 'rgba(0,0,0,0.3)';
+        ctx.shadowBlur = isPinned ? 8 : 4;
         ctx.fillRect(x, y, barW, h);
         ctx.restore();
         // label
-        ctx.fillStyle = '#cfd6e6';
-        ctx.font = '16px Arial';
-        const label = d.area.length > 16 ? d.area.slice(0,16)+'…' : d.area;
+        ctx.fillStyle = '#000000';
+        ctx.font = 'bold 14px MS Sans Serif';
+        const label = d.area.length > 12 ? d.area.slice(0,12)+'…' : d.area;
         ctx.save();
-        ctx.translate(x + barW/2, H - margin + 24);
-        ctx.rotate(-Math.PI/12);
+        ctx.translate(x + barW/2, H - margin + 20);
+        ctx.rotate(-Math.PI/8);
         ctx.textAlign = 'center';
         ctx.fillText(label, 0, 0);
         ctx.restore();
         // value
-        ctx.fillStyle = '#9fb4ff';
-        ctx.font = 'bold 18px Arial';
+        ctx.fillStyle = '#000080';
+        ctx.font = 'bold 16px MS Sans Serif';
         ctx.textAlign = 'center';
         ctx.fillText(String(d.value), x + barW/2, y - 8);
       });
       // title
-      ctx.fillStyle = '#e8e8e8';
-      ctx.font = '20px Arial';
+      ctx.fillStyle = '#000080';
+      ctx.font = 'bold 18px MS Sans Serif';
       ctx.textAlign = 'left';
       const m = metrics[metricIndex];
       ctx.fillText('Totals by Activity — ' + metricDisplay[m], margin, margin - 24);
@@ -279,6 +400,32 @@
     // initial
     metricLabel.textContent = metricDisplay[metrics[metricIndex]];
     draw();
+    
+    // Fake button popup messages
+    const popupMessages = [
+      "Sorry, this feature is being built by a procrastinating developer who's currently watching cat videos! 🐱",
+      "This button is under construction. The intern responsible for this feature is taking a 'quick' 3-hour break! ☕",
+      "Feature temporarily unavailable. Our developer is currently organizing their desk for the 47th time today! 📁",
+      "This tool is being redesigned by someone who's been 'researching' productivity tips for 6 hours! 📚",
+      "Export function is broken. The person who was supposed to fix it got distracted by a really interesting Wikipedia article! 🌐",
+      "Customization options are being worked on by someone who's been 'just checking' social media for 4 hours! 📱",
+      "Save feature is under maintenance. The developer is currently deep in a YouTube rabbit hole about ancient civilizations! 🏛️",
+      "Auto-refresh is being debugged by someone who's been 'quickly' browsing memes for the past 2 hours! 😂"
+    ];
+    
+    function showPopup(index) {
+      document.getElementById('popupText').textContent = popupMessages[index];
+      document.getElementById('popup').classList.add('show');
+    }
+    
+    function closePopup() {
+      document.getElementById('popup').classList.remove('show');
+    }
+    
+    // Close popup when clicking outside
+    document.getElementById('popup').addEventListener('click', function(e) {
+      if (e.target === this) closePopup();
+    });
   </script>
 </body>
 </html>

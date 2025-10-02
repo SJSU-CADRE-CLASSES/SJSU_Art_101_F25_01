@@ -9,7 +9,67 @@
       margin: 0;
       padding: 0;
       height: 100%;
-      background: #000;
+      background: #008080;
+      background-image: 
+        linear-gradient(45deg, #c0c0c0 25%, transparent 25%),
+        linear-gradient(-45deg, #c0c0c0 25%, transparent 25%),
+        linear-gradient(45deg, transparent 75%, #c0c0c0 75%),
+        linear-gradient(-45deg, transparent 75%, #c0c0c0 75%);
+      background-size: 20px 20px;
+      background-position: 0 0, 0 10px, 10px -10px, -10px 0px;
+      position: relative;
+      overflow: hidden;
+      font-family: 'MS Sans Serif', sans-serif;
+    }
+    
+    @keyframes constructionGradient {
+      0% { background-position: 0% 50%; }
+      50% { background-position: 100% 50%; }
+      100% { background-position: 0% 50%; }
+    }
+    
+    body::before {
+      content: "🚧 SITE UNDER CONSTRUCTION 🚧";
+      position: fixed;
+      top: 20px;
+      left: 50%;
+      transform: translateX(-50%);
+      background: #ff6b35;
+      color: white;
+      padding: 12px 24px;
+      border-radius: 25px;
+      font-size: 20px;
+      font-weight: bold;
+      z-index: 1000;
+      animation: bounce 2s infinite;
+      box-shadow: 0 4px 15px rgba(0,0,0,0.3);
+    }
+    
+    @keyframes bounce {
+      0%, 20%, 50%, 80%, 100% { transform: translateX(-50%) translateY(0); }
+      40% { transform: translateX(-50%) translateY(-10px); }
+      60% { transform: translateX(-50%) translateY(-5px); }
+    }
+    
+    body::after {
+      content: "⚠️ This procrastination audit is being built by someone who's been 'just checking' their progress for 6 hours ⚠️";
+      position: fixed;
+      bottom: 20px;
+      left: 50%;
+      transform: translateX(-50%);
+      background: rgba(255, 107, 53, 0.9);
+      color: white;
+      padding: 10px 18px;
+      border-radius: 20px;
+      font-size: 14px;
+      z-index: 1000;
+      animation: pulse 1.5s infinite;
+    }
+    
+    @keyframes pulse {
+      0% { opacity: 0.7; }
+      50% { opacity: 1; }
+      100% { opacity: 0.7; }
     }
     .wrap {
       position: relative;
@@ -21,41 +81,205 @@
       overflow: hidden;
       cursor: pointer;
     }
-    .bg {
-      width: 100%;
-      height: 100%;
-      object-fit: cover;
-      filter: saturate(1.1) contrast(1.1);
+    
+    .main-window {
+      background: #c0c0c0;
+      border: 2px outset #c0c0c0;
+      width: 600px;
+      height: 400px;
+      position: relative;
+      box-shadow: 4px 4px 8px rgba(0,0,0,0.3);
     }
-    .headline {
-      position: absolute;
-      top: 15%;
-      left: 50%;
-      transform: translateX(-50%);
-      color: #ffffff;
-      font-family: Arial, sans-serif;
-      font-weight: 800;
-      font-size: clamp(42px, 8vw, 96px);
-      letter-spacing: 1px;
+    
+    .window-header {
+      background: #000080;
+      color: white;
+      padding: 4px 8px;
+      font-size: 11px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      font-family: 'MS Sans Serif', sans-serif;
+    }
+    
+    .window-content {
+      padding: 20px;
       text-align: center;
-      text-shadow: 0 4px 18px rgba(0,0,0,0.6);
-      background: rgba(0,0,0,0.35);
-      padding: 8px 18px;
-      border-radius: 10px;
+      height: calc(100% - 30px);
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
     }
+    
+    .headline {
+      color: #000080;
+      font-family: 'MS Sans Serif', sans-serif;
+      font-weight: bold;
+      font-size: 28px;
+      text-align: center;
+      margin-bottom: 20px;
+      text-shadow: 2px 2px 0px #ffffff;
+      z-index: 1000;
+      position: relative;
+    }
+    
     .label {
-      position: absolute;
-      bottom: 24px;
-      left: 50%;
-      transform: translateX(-50%);
-      color: #fff;
-      background: rgba(0,0,0,0.6);
-      padding: 10px 16px;
-      border-radius: 10px;
-      font-family: Arial, sans-serif;
-      font-size: 18px;
+      color: #000000;
+      background: #c0c0c0;
+      border: 2px outset #c0c0c0;
+      padding: 8px 16px;
+      font-family: 'MS Sans Serif', sans-serif;
+      font-size: 12px;
       text-align: center;
       white-space: nowrap;
+      cursor: pointer;
+    }
+    
+    .label:hover {
+      background: #d0d0d0;
+    }
+    
+    .label:active {
+      border: 2px inset #c0c0c0;
+    }
+    
+    /* Windows-style sidebar */
+    .sidebar {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 120px;
+      height: 100vh;
+      background: #c0c0c0;
+      border-right: 2px outset #c0c0c0;
+      z-index: 999;
+      display: flex;
+      flex-direction: column;
+      padding: 4px;
+      gap: 2px;
+    }
+    
+    .sidebar-header {
+      background: #000080;
+      color: white;
+      padding: 2px 4px;
+      font-size: 10px;
+      font-family: 'MS Sans Serif', sans-serif;
+      text-align: center;
+      margin-bottom: 4px;
+    }
+    
+    .fake-button {
+      background: #c0c0c0;
+      border: 2px outset #c0c0c0;
+      padding: 4px 6px;
+      font-size: 10px;
+      cursor: pointer;
+      font-family: 'MS Sans Serif', sans-serif;
+      width: 100%;
+      text-align: left;
+      margin-bottom: 1px;
+    }
+    
+    .fake-button:hover {
+      background: #d0d0d0;
+    }
+    
+    .fake-button:active {
+      border: 2px inset #c0c0c0;
+    }
+    
+    .fake-window {
+      position: fixed;
+      background: #c0c0c0;
+      border: 2px outset #c0c0c0;
+      z-index: 998;
+      min-width: 200px;
+      min-height: 100px;
+    }
+    
+    .fake-window-header {
+      background: #000080;
+      color: white;
+      padding: 2px 4px;
+      font-size: 11px;
+      font-family: 'MS Sans Serif', sans-serif;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+    
+    .fake-window-content {
+      padding: 8px;
+      font-size: 11px;
+      font-family: 'MS Sans Serif', sans-serif;
+    }
+    
+    .fake-window:nth-child(1) { top: 100px; left: 50px; }
+    .fake-window:nth-child(2) { top: 120px; left: 300px; }
+    .fake-window:nth-child(3) { top: 140px; left: 550px; }
+    .fake-window:nth-child(4) { top: 160px; left: 800px; }
+    .fake-window:nth-child(5) { top: 300px; left: 100px; }
+    .fake-window:nth-child(6) { top: 320px; left: 350px; }
+    .fake-window:nth-child(7) { top: 340px; left: 600px; }
+    .fake-window:nth-child(8) { top: 360px; left: 850px; }
+    
+    .popup {
+      position: fixed;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      background: #c0c0c0;
+      border: 2px outset #c0c0c0;
+      z-index: 1001;
+      display: none;
+      min-width: 300px;
+      font-family: 'MS Sans Serif', sans-serif;
+    }
+    
+    .popup.show {
+      display: block;
+      animation: popupBounce 0.3s ease;
+    }
+    
+    @keyframes popupBounce {
+      0% { transform: translate(-50%, -50%) scale(0.8); opacity: 0; }
+      100% { transform: translate(-50%, -50%) scale(1); opacity: 1; }
+    }
+    
+    .popup-header {
+      background: #000080;
+      color: white;
+      padding: 4px 8px;
+      font-size: 11px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+    
+    .popup-content {
+      padding: 12px;
+      font-size: 11px;
+      text-align: center;
+    }
+    
+    .popup-close {
+      background: #c0c0c0;
+      border: 1px outset #c0c0c0;
+      color: black;
+      font-size: 10px;
+      cursor: pointer;
+      padding: 1px 4px;
+      margin-left: 8px;
+    }
+    
+    .popup-close:hover {
+      background: #d0d0d0;
+    }
+    
+    .popup-close:active {
+      border: 1px inset #c0c0c0;
     }
   </style>
   <script>
@@ -65,13 +289,149 @@
     window.addEventListener('keydown', function(e) {
       if (e.key === 'Enter' || e.key === ' ') goNext();
     });
+    
+    // Fake Windows-style popup messages for intro page
+    const popupMessages = [
+      "ERROR: File menu is under construction. The developer is currently 'just checking' their email for the 47th time today!",
+      "ERROR: Edit functions are temporarily unavailable. The person who was supposed to implement them is currently organizing their browser bookmarks!",
+      "ERROR: View options are being debugged by someone who's been 'quickly' checking social media for the past 3 hours!",
+      "ERROR: Tools are under maintenance. The developer is currently deep in a Wikipedia rabbit hole about the history of paperclips!",
+      "ERROR: Help system is broken. The person who was supposed to fix it got distracted by a really interesting article about the mating habits of penguins!",
+      "ERROR: Options are being worked on by someone who's been 'just checking' their reflection in the screen for 2 hours!",
+      "ERROR: Settings are under construction. The developer is currently having an existential crisis about whether time can actually be saved!",
+      "ERROR: About dialog is being debugged by someone who's been 'meditating' (staring at a wall) for the past hour!"
+    ];
+    
+    function showPopup(index) {
+      document.getElementById('popupText').textContent = popupMessages[index];
+      document.getElementById('popup').classList.add('show');
+    }
+    
+    function closePopup() {
+      document.getElementById('popup').classList.remove('show');
+    }
+    
+    // Close popup when clicking outside
+    document.getElementById('popup').addEventListener('click', function(e) {
+      if (e.target === this) closePopup();
+    });
   </script>
   </head>
 <body>
   <div class="wrap" onclick="goNext()" title="Press Enter or Click">
-    <img class="bg" src="https://images.unsplash.com/photo-1515879218367-8466d910aaa4?q=80&w=2080&auto=format&fit=crop" alt="Desk">
-    <div class="headline">I'll Do It Later</div>
-    <div class="label">Press Enter or Click to audit my procrastination</div>
+    <div class="main-window">
+      <div class="window-header">
+        <span>Procrastination Audit v1.0</span>
+        <button class="popup-close" onclick="event.stopPropagation(); showPopup(0)">×</button>
+      </div>
+      <div class="window-content">
+        <div class="headline">I'll Do It Later</div>
+        <div class="label">Press Enter or Click to audit my procrastination</div>
+      </div>
+    </div>
+  </div>
+  
+  <!-- Windows-style sidebar -->
+  <div class="sidebar">
+    <div class="sidebar-header">Tools</div>
+    <button class="fake-button" onclick="showPopup(0)">File</button>
+    <button class="fake-button" onclick="showPopup(1)">Edit</button>
+    <button class="fake-button" onclick="showPopup(2)">View</button>
+    <button class="fake-button" onclick="showPopup(3)">Tools</button>
+    <button class="fake-button" onclick="showPopup(4)">Help</button>
+    <button class="fake-button" onclick="showPopup(5)">Options</button>
+    <button class="fake-button" onclick="showPopup(6)">Settings</button>
+    <button class="fake-button" onclick="showPopup(7)">About</button>
+  </div>
+  
+  <!-- Fake Windows -->
+  <div class="fake-window" onclick="showPopup(0)">
+    <div class="fake-window-header">
+      <span>Progress Report</span>
+      <button class="popup-close" onclick="event.stopPropagation(); showPopup(0)">×</button>
+    </div>
+    <div class="fake-window-content">
+      Loading... 0%
+    </div>
+  </div>
+  
+  <div class="fake-window" onclick="showPopup(1)">
+    <div class="fake-window-header">
+      <span>Task Manager</span>
+      <button class="popup-close" onclick="event.stopPropagation(); showPopup(1)">×</button>
+    </div>
+    <div class="fake-window-content">
+      No tasks found
+    </div>
+  </div>
+  
+  <div class="fake-window" onclick="showPopup(2)">
+    <div class="fake-window-header">
+      <span>System Status</span>
+      <button class="popup-close" onclick="event.stopPropagation(); showPopup(2)">×</button>
+    </div>
+    <div class="fake-window-content">
+      All systems offline
+    </div>
+  </div>
+  
+  <div class="fake-window" onclick="showPopup(3)">
+    <div class="fake-window-header">
+      <span>Error Log</span>
+      <button class="popup-close" onclick="event.stopPropagation(); showPopup(3)">×</button>
+    </div>
+    <div class="fake-window-content">
+      Error: Feature not found
+    </div>
+  </div>
+  
+  <div class="fake-window" onclick="showPopup(4)">
+    <div class="fake-window-header">
+      <span>Help System</span>
+      <button class="popup-close" onclick="event.stopPropagation(); showPopup(4)">×</button>
+    </div>
+    <div class="fake-window-content">
+      Help unavailable
+    </div>
+  </div>
+  
+  <div class="fake-window" onclick="showPopup(5)">
+    <div class="fake-window-header">
+      <span>Configuration</span>
+      <button class="popup-close" onclick="event.stopPropagation(); showPopup(5)">×</button>
+    </div>
+    <div class="fake-window-content">
+      Settings locked
+    </div>
+  </div>
+  
+  <div class="fake-window" onclick="showPopup(6)">
+    <div class="fake-window-header">
+      <span>Preferences</span>
+      <button class="popup-close" onclick="event.stopPropagation(); showPopup(6)">×</button>
+    </div>
+    <div class="fake-window-content">
+      Access denied
+    </div>
+  </div>
+  
+  <div class="fake-window" onclick="showPopup(7)">
+    <div class="fake-window-header">
+      <span>About</span>
+      <button class="popup-close" onclick="event.stopPropagation(); showPopup(7)">×</button>
+    </div>
+    <div class="fake-window-content">
+      Version: Under Construction
+    </div>
+  </div>
+  
+  <!-- Windows-style popup -->
+  <div class="popup" id="popup">
+    <div class="popup-header">
+      <span>System Message</span>
+      <button class="popup-close" onclick="closePopup()">×</button>
+    </div>
+    <div class="popup-content" id="popupText"></div>
   </div>
 </body>
 </html>
