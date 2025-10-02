@@ -1,0 +1,232 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Procrastination — Explore</title>
+  <style>
+    body {
+      margin: 0;
+      padding: 0;
+      background: #0b0b0c;
+      color: #e8e8e8;
+      font-family: Arial, sans-serif;
+    }
+    .bar {
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      background: #141417;
+      border-bottom: 1px solid #222;
+      padding: 10px 14px;
+      display: flex;
+      align-items: center;
+      gap: 16px;
+      z-index: 10;
+    }
+    .bar button {
+      background: #2a2a30;
+      color: #ddd;
+      border: 1px solid #3a3a45;
+      padding: 8px 12px;
+      border-radius: 6px;
+      cursor: pointer;
+    }
+    .bar button:hover { background: #34343c; }
+    .canvas-wrap {
+      display: grid;
+      place-items: center;
+      height: 100vh;
+    }
+    canvas { width: 90vw; height: 60vh; background: #0f0f12; border: 1px solid #1f1f26; border-radius: 10px; }
+    .hint { position: fixed; bottom: 12px; left: 50%; transform: translateX(-50%); font-size: 14px; color: #aaa; }
+    .tooltip { position: fixed; pointer-events: none; background: rgba(0,0,0,0.85); color: #fff; padding: 6px 10px; border-radius: 6px; font-size: 12px; border: 1px solid #333; display: none; }
+  </style>
+  <script src="journey_data.js?v=2"></script>
+  <script>
+    (function() {
+      var navs = performance.getEntriesByType && performance.getEntriesByType('navigation');
+      var isReload = navs && navs[0] ? navs[0].type === 'reload' : (performance.navigation && performance.navigation.type === 1);
+      if (isReload) {
+        window.location.replace('journey_intro.html');
+      }
+    })();
+  </script>
+</head>
+<body>
+  <div class="bar">
+    <div><strong>Metric</strong>: <span id="metricLabel">minutes</span></div>
+    <button id="metricPrev">◂ Metric</button>
+    <button id="metricNext">Metric ▸</button>
+    <button id="sortBtn">Toggle Sort</button>
+    <button id="toReflection">Reflect →</button>
+  </div>
+  <div class="canvas-wrap">
+    <canvas id="chart" width="1200" height="700"></canvas>
+  </div>
+  <div class="hint">Hover bars • Click to pin highlight • Arrow keys change metric • S to sort • R to reflect</div>
+  <div class="tooltip" id="tip"></div>
+
+  <script>
+    // Canonical metric keys used by the dataset
+    const metricKeys = ['minutes', 'interruptions', 'tabsOpened'];
+    // Friendly labels for UI
+    const metricDisplay = {
+      minutes: 'Minutes',
+      interruptions: 'Interruptions',
+      tabsOpened: 'Tabs Opened'
+    };
+    const metricUnit = {
+      minutes: ' min',
+      interruptions: '',
+      tabsOpened: ''
+    };
+    // Active metric index (0 = minutes by default)
+    let metricIndex = 0;
+    // Backward-compat: if someone edited the file and replaced metricKeys with display strings,
+    // keep internal keys stable while still showing friendly labels.
+    const metrics = metricKeys;
+    let sortedDesc = true;
+    let pinnedIndex = -1;
+
+    const canvas = document.getElementById('chart');
+    const ctx = canvas.getContext('2d');
+    const tip = document.getElementById('tip');
+    const metricLabel = document.getElementById('metricLabel');
+
+    function getData() {
+      const arr = window.summarizeByArea(metrics[metricIndex]);
+      return sortedDesc ? arr.slice().sort((a,b)=>b.value-a.value) : arr.slice().sort((a,b)=>a.value-b.value);
+    }
+
+    function draw() {
+      const data = getData();
+      const W = canvas.width, H = canvas.height;
+      ctx.clearRect(0,0,W,H);
+      // axes
+      const margin = 80;
+      const barAreaW = W - margin*2;
+      const barAreaH = H - margin*2;
+      const maxVal = Math.max(1, ...data.map(d=>d.value));
+      const barW = barAreaW / data.length * 0.7;
+      const gap = barAreaW / data.length * 0.3;
+      // baseline
+      ctx.strokeStyle = '#2a2a33';
+      ctx.lineWidth = 2;
+      ctx.beginPath();
+      ctx.moveTo(margin, H-margin);
+      ctx.lineTo(W-margin, H-margin);
+      ctx.stroke();
+      // bars
+      data.forEach((d, i) => {
+        const x = margin + i*(barW+gap);
+        const h = (d.value/maxVal) * (barAreaH - 20);
+        const y = H - margin - h;
+        const isPinned = (pinnedIndex === i);
+        const color = isPinned ? '#ff7a00' : '#6fa8ff';
+        ctx.fillStyle = color;
+        // animated height easing
+        ctx.save();
+        ctx.shadowColor = 'rgba(0,0,0,0.4)';
+        ctx.shadowBlur = isPinned ? 16 : 8;
+        ctx.fillRect(x, y, barW, h);
+        ctx.restore();
+        // label
+        ctx.fillStyle = '#cfd6e6';
+        ctx.font = '16px Arial';
+        const label = d.area.length > 16 ? d.area.slice(0,16)+'…' : d.area;
+        ctx.save();
+        ctx.translate(x + barW/2, H - margin + 24);
+        ctx.rotate(-Math.PI/12);
+        ctx.textAlign = 'center';
+        ctx.fillText(label, 0, 0);
+        ctx.restore();
+        // value
+        ctx.fillStyle = '#9fb4ff';
+        ctx.font = 'bold 18px Arial';
+        ctx.textAlign = 'center';
+        ctx.fillText(String(d.value), x + barW/2, y - 8);
+      });
+      // title
+      ctx.fillStyle = '#e8e8e8';
+      ctx.font = '20px Arial';
+      ctx.textAlign = 'left';
+      const m = metrics[metricIndex];
+      ctx.fillText('Totals by Activity — ' + metricDisplay[m], margin, margin - 24);
+    }
+
+    function setMetric(indexDelta) {
+      metricIndex = (metricIndex + indexDelta + metrics.length) % metrics.length;
+      const m = metrics[metricIndex];
+      document.getElementById('metricLabel').textContent = metricDisplay[m];
+      pinnedIndex = -1;
+      draw();
+    }
+
+    function toggleSort() {
+      sortedDesc = !sortedDesc;
+      draw();
+    }
+
+    function getBarIndexAt(x, y) {
+      const data = getData();
+      const W = canvas.width, H = canvas.height;
+      const margin = 80;
+      const barAreaW = W - margin*2;
+      const barW = barAreaW / data.length * 0.7;
+      const gap = barAreaW / data.length * 0.3;
+      if (y < 0 || y > H) return -1;
+      for (let i = 0; i < data.length; i++) {
+        const bx = margin + i*(barW+gap);
+        if (x >= bx && x <= bx + barW) return i;
+      }
+      return -1;
+    }
+
+    canvas.addEventListener('mousemove', (e) => {
+      const rect = canvas.getBoundingClientRect();
+      const ix = (e.clientX - rect.left) * (canvas.width / rect.width);
+      const iy = (e.clientY - rect.top) * (canvas.height / rect.height);
+      const i = getBarIndexAt(ix, iy);
+      const data = getData();
+      const m = metrics[metricIndex];
+      if (i >= 0) {
+        tip.style.display = 'block';
+        tip.style.left = e.clientX + 12 + 'px';
+        tip.style.top = e.clientY + 12 + 'px';
+        tip.textContent = data[i].area + ' — ' + metricDisplay[m] + ': ' + data[i].value + metricUnit[m];
+      } else {
+        tip.style.display = 'none';
+      }
+    });
+
+    canvas.addEventListener('click', (e) => {
+      const rect = canvas.getBoundingClientRect();
+      const ix = (e.clientX - rect.left) * (canvas.width / rect.width);
+      const iy = (e.clientY - rect.top) * (canvas.height / rect.height);
+      const i = getBarIndexAt(ix, iy);
+      pinnedIndex = (pinnedIndex === i) ? -1 : i;
+      draw();
+    });
+
+    document.getElementById('metricPrev').addEventListener('click', () => setMetric(-1));
+    document.getElementById('metricNext').addEventListener('click', () => setMetric(1));
+    document.getElementById('sortBtn').addEventListener('click', toggleSort);
+    document.getElementById('toReflection').addEventListener('click', () => window.location.href = 'journey_reflection.html');
+
+    window.addEventListener('keydown', (e) => {
+      if (e.key === 'ArrowRight') setMetric(1);
+      if (e.key === 'ArrowLeft') setMetric(-1);
+      if (e.key.toLowerCase() === 's') toggleSort();
+      if (e.key.toLowerCase() === 'r') window.location.href = 'journey_reflection.html';
+    });
+
+    // initial
+    metricLabel.textContent = metricDisplay[metrics[metricIndex]];
+    draw();
+  </script>
+</body>
+</html>
+
+

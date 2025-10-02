@@ -1,0 +1,102 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Procrastination — Reflection</title>
+  <style>
+    body {
+      margin: 0;
+      padding: 0;
+      min-height: 100vh;
+      background: radial-gradient(1200px 800px at 50% 20%, #191922, #0a0a0f 60%);
+      color: #e6e6ea;
+      font-family: Arial, sans-serif;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+    .card {
+      width: min(900px, 90vw);
+      background: rgba(10, 10, 16, 0.85);
+      border: 1px solid #232339;
+      border-radius: 14px;
+      padding: 24px 28px;
+      box-shadow: 0 10px 40px rgba(0,0,0,0.5);
+    }
+    .card h1 { margin: 0 0 10px 0; font-size: 28px; }
+    .line { margin: 12px 0; padding: 10px 12px; border-radius: 8px; transition: background 0.2s ease; }
+    .line.active { background: rgba(255, 167, 38, 0.12); border: 1px solid rgba(255, 167, 38, 0.25); }
+    .nav { display: flex; gap: 10px; margin-top: 16px; }
+    .nav button { background: #232339; color: #e6e6ea; border: 1px solid #34344a; padding: 8px 12px; border-radius: 8px; cursor: pointer; }
+    .nav button:hover { background: #2b2b42; }
+    .hint { text-align: center; color: #aaa; margin-top: 10px; font-size: 13px; }
+  </style>
+  <script src="journey_data.js?v=2"></script>
+  <script>
+    (function() {
+      var navs = performance.getEntriesByType && performance.getEntriesByType('navigation');
+      var isReload = navs && navs[0] ? navs[0].type === 'reload' : (performance.navigation && performance.navigation.type === 1);
+      if (isReload) {
+        window.location.replace('journey_intro.html');
+      }
+    })();
+  </script>
+</head>
+<body>
+  <div class="card">
+    <h1>What avoiding the work revealed</h1>
+    <div class="line" id="l1"></div>
+    <div class="line" id="l2"></div>
+    <div class="line" id="l3"></div>
+    <div class="line" id="l4"></div>
+    <div class="line" id="l5"></div>
+    <div class="nav">
+      <button id="prev">◂ Prev</button>
+      <button id="next">Next ▸</button>
+      <button id="replay">Back to Chart</button>
+    </div>
+    <div class="hint">Use Up/Down or Prev/Next to move. Enter to go back.</div>
+  </div>
+
+  <script>
+    const stats = window.overallStats();
+    const lines = [
+      `Across ${Math.round(stats.totalMinutes/60)} hours, I delayed starting.`,
+      `My top detour was ${stats.topActivity}. Reliable, endless, easy.`,
+      `Interruptions stacked to ${stats.totalInterruptions}. Focus leaked through small cracks.`,
+      `When I felt okay, I spent ~${stats.calmAvgMinutes.toFixed(1)} minutes putting things off; otherwise it rose to ~${stats.otherAvgMinutes.toFixed(1)}.`,
+      `Tabs opened: ${stats.totalTabs}. Every new tab promised progress that never came.`
+    ];
+    const el = [
+      document.getElementById('l1'),
+      document.getElementById('l2'),
+      document.getElementById('l3'),
+      document.getElementById('l4'),
+      document.getElementById('l5')
+    ];
+    lines.forEach((t,i)=> el[i].textContent = t);
+
+    let idx = 0;
+    function update() {
+      el.forEach(e=> e.classList.remove('active'));
+      el[idx].classList.add('active');
+      el[idx].scrollIntoView({ behavior: 'smooth', block: 'center' });
+    }
+    function prev() { idx = (idx - 1 + el.length) % el.length; update(); }
+    function next() { idx = (idx + 1) % el.length; update(); }
+
+    document.getElementById('prev').addEventListener('click', prev);
+    document.getElementById('next').addEventListener('click', next);
+    document.getElementById('replay').addEventListener('click', () => window.location.href = 'journey_play.html');
+    window.addEventListener('keydown', (e) => {
+      if (e.key === 'ArrowUp') prev();
+      if (e.key === 'ArrowDown') next();
+      if (e.key === 'Enter') window.location.href = 'journey_play.html';
+    });
+    update();
+  </script>
+</body>
+</html>
+
+
