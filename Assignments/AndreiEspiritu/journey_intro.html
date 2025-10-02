@@ -227,26 +227,34 @@
     
     .popup {
       position: fixed;
-      top: 50%;
-      left: 50%;
-      transform: translate(-50%, -50%);
       background: #c0c0c0;
       border: 2px outset #c0c0c0;
       z-index: 1001;
       display: none;
-      min-width: 300px;
+      min-width: 250px;
+      max-width: 300px;
       font-family: 'MS Sans Serif', sans-serif;
     }
     
     .popup.show {
       display: block;
-      animation: popupBounce 0.3s ease;
+      animation: popupSlide 0.3s ease;
     }
     
-    @keyframes popupBounce {
-      0% { transform: translate(-50%, -50%) scale(0.8); opacity: 0; }
-      100% { transform: translate(-50%, -50%) scale(1); opacity: 1; }
+    @keyframes popupSlide {
+      0% { opacity: 0; transform: scale(0.8); }
+      100% { opacity: 1; transform: scale(1); }
     }
+    
+    /* Scattered popup positions */
+    .popup:nth-of-type(1) { top: 20%; left: 20%; }
+    .popup:nth-of-type(2) { top: 30%; right: 20%; }
+    .popup:nth-of-type(3) { top: 60%; left: 15%; }
+    .popup:nth-of-type(4) { top: 70%; right: 15%; }
+    .popup:nth-of-type(5) { bottom: 30%; left: 25%; }
+    .popup:nth-of-type(6) { bottom: 20%; right: 25%; }
+    .popup:nth-of-type(7) { top: 45%; left: 10%; }
+    .popup:nth-of-type(8) { top: 55%; right: 10%; }
     
     .popup-header {
       background: #000080;
@@ -303,18 +311,20 @@
     ];
     
     function showPopup(index) {
-      document.getElementById('popupText').textContent = popupMessages[index];
-      document.getElementById('popup').classList.add('show');
+      document.getElementById('popupText' + index).textContent = popupMessages[index];
+      document.getElementById('popup' + index).classList.add('show');
     }
     
-    function closePopup() {
-      document.getElementById('popup').classList.remove('show');
+    function closePopup(index) {
+      document.getElementById('popup' + index).classList.remove('show');
     }
     
-    // Close popup when clicking outside
-    document.getElementById('popup').addEventListener('click', function(e) {
-      if (e.target === this) closePopup();
-    });
+    // Close popups when clicking outside
+    for (let i = 0; i < 8; i++) {
+      document.getElementById('popup' + i).addEventListener('click', function(e) {
+        if (e.target === this) closePopup(i);
+      });
+    }
   </script>
   </head>
 <body>
@@ -425,13 +435,62 @@
     </div>
   </div>
   
-  <!-- Windows-style popup -->
-  <div class="popup" id="popup">
+  <!-- Windows-style popups -->
+  <div class="popup" id="popup0">
     <div class="popup-header">
       <span>System Message</span>
-      <button class="popup-close" onclick="closePopup()">×</button>
+      <button class="popup-close" onclick="closePopup(0)">×</button>
     </div>
-    <div class="popup-content" id="popupText"></div>
+    <div class="popup-content" id="popupText0"></div>
+  </div>
+  <div class="popup" id="popup1">
+    <div class="popup-header">
+      <span>System Message</span>
+      <button class="popup-close" onclick="closePopup(1)">×</button>
+    </div>
+    <div class="popup-content" id="popupText1"></div>
+  </div>
+  <div class="popup" id="popup2">
+    <div class="popup-header">
+      <span>System Message</span>
+      <button class="popup-close" onclick="closePopup(2)">×</button>
+    </div>
+    <div class="popup-content" id="popupText2"></div>
+  </div>
+  <div class="popup" id="popup3">
+    <div class="popup-header">
+      <span>System Message</span>
+      <button class="popup-close" onclick="closePopup(3)">×</button>
+    </div>
+    <div class="popup-content" id="popupText3"></div>
+  </div>
+  <div class="popup" id="popup4">
+    <div class="popup-header">
+      <span>System Message</span>
+      <button class="popup-close" onclick="closePopup(4)">×</button>
+    </div>
+    <div class="popup-content" id="popupText4"></div>
+  </div>
+  <div class="popup" id="popup5">
+    <div class="popup-header">
+      <span>System Message</span>
+      <button class="popup-close" onclick="closePopup(5)">×</button>
+    </div>
+    <div class="popup-content" id="popupText5"></div>
+  </div>
+  <div class="popup" id="popup6">
+    <div class="popup-header">
+      <span>System Message</span>
+      <button class="popup-close" onclick="closePopup(6)">×</button>
+    </div>
+    <div class="popup-content" id="popupText6"></div>
+  </div>
+  <div class="popup" id="popup7">
+    <div class="popup-header">
+      <span>System Message</span>
+      <button class="popup-close" onclick="closePopup(7)">×</button>
+    </div>
+    <div class="popup-content" id="popupText7"></div>
   </div>
 </body>
 </html>
