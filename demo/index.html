@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Pulsing Divs</title>
+    <style>
+        body {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            background-color: #000;
+            overflow: hidden;
+            margin: 0;
+        }
+        .pulse-div {
+            width: 140px;
+            height: 140px;
+            background-color: rgb(255, 255, 255);
+            border-radius: 50%;
+            position: absolute;
+            animation: pulse 2s infinite ease-in-out;
+        }
+        @keyframes pulse {
+            0%, 100% {
+                transform: scale(0.5);
+                opacity: 0.5;
+            }
+            50% {
+                transform: scale(1.2);
+                opacity: 1;
+            }
+        }
+    </style>
+</head>
+<body>
+    <script>
+        const container = document.body;
+        const divCount = 40;
+        const radius = 300; // Radius of the circle
+
+        for (let i = 0; i < divCount; i++) {
+            const div = document.createElement('div');
+            div.classList.add('pulse-div');
+
+            const angle = (i / divCount) * 2 * Math.PI;
+            const x = Math.cos(angle) * radius;
+            const y = Math.sin(angle) * radius;
+
+            // Position divs relative to the center of the viewport
+            div.style.left = `calc(50% + ${x}px - 140px)`; // 10px is half of div width
+            div.style.top = `calc(50% + ${y}px - 140px)`; // 10px is half of div height
+
+            // Stagger the animation
+            div.style.animationDelay = `${i * 0.1}s`;
+
+            container.appendChild(div);
+        }
+    </script>
+</body>
+</html>

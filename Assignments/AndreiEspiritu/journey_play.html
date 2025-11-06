@@ -1,0 +1,433 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Procrastination — Explore</title>
+  <style>
+    body {
+      margin: 0;
+      padding: 0;
+      background: #008080;
+      background-image: 
+        linear-gradient(45deg, #c0c0c0 25%, transparent 25%),
+        linear-gradient(-45deg, #c0c0c0 25%, transparent 25%),
+        linear-gradient(45deg, transparent 75%, #c0c0c0 75%),
+        linear-gradient(-45deg, transparent 75%, #c0c0c0 75%);
+      background-size: 20px 20px;
+      background-position: 0 0, 0 10px, 10px -10px, -10px 0px;
+      color: #000000;
+      font-family: 'MS Sans Serif', sans-serif;
+      position: relative;
+      overflow-x: hidden;
+    }
+    
+    @keyframes constructionGradient {
+      0% { background-position: 0% 50%; }
+      50% { background-position: 100% 50%; }
+      100% { background-position: 0% 50%; }
+    }
+    
+    body::before {
+      content: "🚧 UNDER CONSTRUCTION 🚧";
+      position: fixed;
+      top: 20px;
+      left: 50%;
+      transform: translateX(-50%);
+      background: #ff6b35;
+      color: white;
+      padding: 10px 20px;
+      border-radius: 25px;
+      font-size: 18px;
+      font-weight: bold;
+      z-index: 1000;
+      animation: bounce 2s infinite;
+      box-shadow: 0 4px 15px rgba(0,0,0,0.3);
+    }
+    
+    @keyframes bounce {
+      0%, 20%, 50%, 80%, 100% { transform: translateX(-50%) translateY(0); }
+      40% { transform: translateX(-50%) translateY(-10px); }
+      60% { transform: translateX(-50%) translateY(-5px); }
+    }
+    
+    body::after {
+      content: "⚠️ This procrastination data is being analyzed by a very slow intern ⚠️";
+      position: fixed;
+      bottom: 20px;
+      left: 50%;
+      transform: translateX(-50%);
+      background: rgba(255, 107, 53, 0.9);
+      color: white;
+      padding: 8px 16px;
+      border-radius: 20px;
+      font-size: 14px;
+      z-index: 1000;
+      animation: pulse 1.5s infinite;
+    }
+    
+    @keyframes pulse {
+      0% { opacity: 0.7; }
+      50% { opacity: 1; }
+      100% { opacity: 0.7; }
+    }
+    
+    /* Windows-style sidebar */
+    .sidebar {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 120px;
+      height: 100vh;
+      background: #c0c0c0;
+      border-right: 2px outset #c0c0c0;
+      z-index: 999;
+      display: flex;
+      flex-direction: column;
+      padding: 4px;
+      gap: 2px;
+    }
+    
+    .sidebar-header {
+      background: #000080;
+      color: white;
+      padding: 2px 4px;
+      font-size: 10px;
+      font-family: 'MS Sans Serif', sans-serif;
+      text-align: center;
+      margin-bottom: 4px;
+    }
+    
+    .fake-button {
+      background: #c0c0c0;
+      border: 2px outset #c0c0c0;
+      padding: 4px 6px;
+      font-size: 10px;
+      cursor: pointer;
+      font-family: 'MS Sans Serif', sans-serif;
+      width: 100%;
+      text-align: left;
+      margin-bottom: 1px;
+    }
+    
+    .fake-button:hover {
+      background: #d0d0d0;
+    }
+    
+    .fake-button:active {
+      border: 2px inset #c0c0c0;
+    }
+    
+    .popup {
+      position: fixed;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      background: #ff4500;
+      color: white;
+      padding: 20px 30px;
+      border-radius: 15px;
+      font-size: 16px;
+      font-weight: bold;
+      z-index: 1001;
+      box-shadow: 0 8px 25px rgba(0,0,0,0.5);
+      display: none;
+      text-align: center;
+      max-width: 300px;
+      border: 3px solid #ff6b35;
+    }
+    
+    .popup.show {
+      display: block;
+      animation: popupBounce 0.5s ease;
+    }
+    
+    @keyframes popupBounce {
+      0% { transform: translate(-50%, -50%) scale(0.5); opacity: 0; }
+      50% { transform: translate(-50%, -50%) scale(1.1); }
+      100% { transform: translate(-50%, -50%) scale(1); opacity: 1; }
+    }
+    
+    .popup-close {
+      position: absolute;
+      top: 5px;
+      right: 10px;
+      background: none;
+      border: none;
+      color: white;
+      font-size: 20px;
+      cursor: pointer;
+      font-weight: bold;
+    }
+    .bar {
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      background: #c0c0c0;
+      border-bottom: 2px outset #c0c0c0;
+      padding: 4px 8px;
+      display: flex;
+      align-items: center;
+      gap: 4px;
+      z-index: 10;
+      font-family: 'MS Sans Serif', sans-serif;
+    }
+    .bar button {
+      background: #c0c0c0;
+      color: #000000;
+      border: 2px outset #c0c0c0;
+      padding: 4px 8px;
+      cursor: pointer;
+      font-family: 'MS Sans Serif', sans-serif;
+      font-size: 11px;
+    }
+    .bar button:hover { background: #d0d0d0; }
+    .bar button:active { border: 2px inset #c0c0c0; }
+    .canvas-wrap {
+      display: grid;
+      place-items: center;
+      height: 100vh;
+    }
+    canvas { 
+      width: 90vw; 
+      height: 60vh; 
+      background: #c0c0c0; 
+      border: 2px outset #c0c0c0; 
+      box-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+    }
+    .hint { position: fixed; bottom: 12px; left: 50%; transform: translateX(-50%); font-size: 14px; color: #aaa; }
+    .tooltip { position: fixed; pointer-events: none; background: rgba(0,0,0,0.85); color: #fff; padding: 6px 10px; border-radius: 6px; font-size: 12px; border: 1px solid #333; display: none; }
+  </style>
+  <script src="journey_data.js?v=2"></script>
+  <script>
+    (function() {
+      var navs = performance.getEntriesByType && performance.getEntriesByType('navigation');
+      var isReload = navs && navs[0] ? navs[0].type === 'reload' : (performance.navigation && performance.navigation.type === 1);
+      if (isReload) {
+        window.location.replace('journey_intro.html');
+      }
+    })();
+  </script>
+</head>
+<body>
+  <div class="bar">
+    <div><strong>Metric</strong>: <span id="metricLabel">minutes</span></div>
+    <button id="metricPrev">◂ Metric</button>
+    <button id="metricNext">Metric ▸</button>
+    <button id="sortBtn">Toggle Sort</button>
+    <button id="toReflection">Reflect →</button>
+  </div>
+  <div class="canvas-wrap">
+    <canvas id="chart" width="1200" height="700"></canvas>
+  </div>
+  <div class="hint">Hover bars • Click to pin highlight • Arrow keys change metric • S to sort • R to reflect</div>
+  <div class="tooltip" id="tip"></div>
+  
+  <!-- Windows-style sidebar -->
+  <div class="sidebar">
+    <div class="sidebar-header">Chart Tools</div>
+    <button class="fake-button" onclick="showPopup(0)">Launch</button>
+    <button class="fake-button" onclick="showPopup(1)">Turbo</button>
+    <button class="fake-button" onclick="showPopup(2)">Tools</button>
+    <button class="fake-button" onclick="showPopup(3)">Settings</button>
+    <button class="fake-button" onclick="showPopup(4)">Export</button>
+    <button class="fake-button" onclick="showPopup(5)">Custom</button>
+    <button class="fake-button" onclick="showPopup(6)">Save</button>
+    <button class="fake-button" onclick="showPopup(7)">Refresh</button>
+  </div>
+  
+  <!-- Popup -->
+  <div class="popup" id="popup">
+    <button class="popup-close" onclick="closePopup()">×</button>
+    <div id="popupText"></div>
+  </div>
+
+  <script>
+    // Canonical metric keys used by the dataset
+    const metricKeys = ['minutes', 'interruptions', 'tabsOpened'];
+    // Friendly labels for UI
+    const metricDisplay = {
+      minutes: 'Minutes',
+      interruptions: 'Interruptions',
+      tabsOpened: 'Tabs Opened'
+    };
+    const metricUnit = {
+      minutes: ' min',
+      interruptions: '',
+      tabsOpened: ''
+    };
+    // Active metric index (0 = minutes by default)
+    let metricIndex = 0;
+    // Backward-compat: if someone edited the file and replaced metricKeys with display strings,
+    // keep internal keys stable while still showing friendly labels.
+    const metrics = metricKeys;
+    let sortedDesc = true;
+    let pinnedIndex = -1;
+
+    const canvas = document.getElementById('chart');
+    const ctx = canvas.getContext('2d');
+    const tip = document.getElementById('tip');
+    const metricLabel = document.getElementById('metricLabel');
+
+    function getData() {
+      const arr = window.summarizeByArea(metrics[metricIndex]);
+      return sortedDesc ? arr.slice().sort((a,b)=>b.value-a.value) : arr.slice().sort((a,b)=>a.value-b.value);
+    }
+
+    function draw() {
+      const data = getData();
+      const W = canvas.width, H = canvas.height;
+      ctx.clearRect(0,0,W,H);
+      // axes
+      const margin = 80;
+      const barAreaW = W - margin*2;
+      const barAreaH = H - margin*2;
+      const maxVal = Math.max(1, ...data.map(d=>d.value));
+      const barW = barAreaW / data.length * 0.7;
+      const gap = barAreaW / data.length * 0.3;
+      // baseline
+      ctx.strokeStyle = '#2a2a33';
+      ctx.lineWidth = 2;
+      ctx.beginPath();
+      ctx.moveTo(margin, H-margin);
+      ctx.lineTo(W-margin, H-margin);
+      ctx.stroke();
+      // bars
+      data.forEach((d, i) => {
+        const x = margin + i*(barW+gap);
+        const h = (d.value/maxVal) * (barAreaH - 20);
+        const y = H - margin - h;
+        const isPinned = (pinnedIndex === i);
+        const color = isPinned ? '#000080' : '#008080';
+        ctx.fillStyle = color;
+        // animated height easing
+        ctx.save();
+        ctx.shadowColor = 'rgba(0,0,0,0.3)';
+        ctx.shadowBlur = isPinned ? 8 : 4;
+        ctx.fillRect(x, y, barW, h);
+        ctx.restore();
+        // label
+        ctx.fillStyle = '#000000';
+        ctx.font = 'bold 14px MS Sans Serif';
+        const label = d.area.length > 12 ? d.area.slice(0,12)+'…' : d.area;
+        ctx.save();
+        ctx.translate(x + barW/2, H - margin + 20);
+        ctx.rotate(-Math.PI/8);
+        ctx.textAlign = 'center';
+        ctx.fillText(label, 0, 0);
+        ctx.restore();
+        // value
+        ctx.fillStyle = '#000080';
+        ctx.font = 'bold 16px MS Sans Serif';
+        ctx.textAlign = 'center';
+        ctx.fillText(String(d.value), x + barW/2, y - 8);
+      });
+      // title
+      ctx.fillStyle = '#000080';
+      ctx.font = 'bold 18px MS Sans Serif';
+      ctx.textAlign = 'left';
+      const m = metrics[metricIndex];
+      ctx.fillText('Totals by Activity — ' + metricDisplay[m], margin, margin - 24);
+    }
+
+    function setMetric(indexDelta) {
+      metricIndex = (metricIndex + indexDelta + metrics.length) % metrics.length;
+      const m = metrics[metricIndex];
+      document.getElementById('metricLabel').textContent = metricDisplay[m];
+      pinnedIndex = -1;
+      draw();
+    }
+
+    function toggleSort() {
+      sortedDesc = !sortedDesc;
+      draw();
+    }
+
+    function getBarIndexAt(x, y) {
+      const data = getData();
+      const W = canvas.width, H = canvas.height;
+      const margin = 80;
+      const barAreaW = W - margin*2;
+      const barW = barAreaW / data.length * 0.7;
+      const gap = barAreaW / data.length * 0.3;
+      if (y < 0 || y > H) return -1;
+      for (let i = 0; i < data.length; i++) {
+        const bx = margin + i*(barW+gap);
+        if (x >= bx && x <= bx + barW) return i;
+      }
+      return -1;
+    }
+
+    canvas.addEventListener('mousemove', (e) => {
+      const rect = canvas.getBoundingClientRect();
+      const ix = (e.clientX - rect.left) * (canvas.width / rect.width);
+      const iy = (e.clientY - rect.top) * (canvas.height / rect.height);
+      const i = getBarIndexAt(ix, iy);
+      const data = getData();
+      const m = metrics[metricIndex];
+      if (i >= 0) {
+        tip.style.display = 'block';
+        tip.style.left = e.clientX + 12 + 'px';
+        tip.style.top = e.clientY + 12 + 'px';
+        tip.textContent = data[i].area + ' — ' + metricDisplay[m] + ': ' + data[i].value + metricUnit[m];
+      } else {
+        tip.style.display = 'none';
+      }
+    });
+
+    canvas.addEventListener('click', (e) => {
+      const rect = canvas.getBoundingClientRect();
+      const ix = (e.clientX - rect.left) * (canvas.width / rect.width);
+      const iy = (e.clientY - rect.top) * (canvas.height / rect.height);
+      const i = getBarIndexAt(ix, iy);
+      pinnedIndex = (pinnedIndex === i) ? -1 : i;
+      draw();
+    });
+
+    document.getElementById('metricPrev').addEventListener('click', () => setMetric(-1));
+    document.getElementById('metricNext').addEventListener('click', () => setMetric(1));
+    document.getElementById('sortBtn').addEventListener('click', toggleSort);
+    document.getElementById('toReflection').addEventListener('click', () => window.location.href = 'journey_reflection.html');
+
+    window.addEventListener('keydown', (e) => {
+      if (e.key === 'ArrowRight') setMetric(1);
+      if (e.key === 'ArrowLeft') setMetric(-1);
+      if (e.key.toLowerCase() === 's') toggleSort();
+      if (e.key.toLowerCase() === 'r') window.location.href = 'journey_reflection.html';
+    });
+
+    // initial
+    metricLabel.textContent = metricDisplay[metrics[metricIndex]];
+    draw();
+    
+    // Fake button popup messages
+    const popupMessages = [
+      "Sorry, this feature is being built by a procrastinating developer who's currently watching cat videos! 🐱",
+      "This button is under construction. The intern responsible for this feature is taking a 'quick' 3-hour break! ☕",
+      "Feature temporarily unavailable. Our developer is currently organizing their desk for the 47th time today! 📁",
+      "This tool is being redesigned by someone who's been 'researching' productivity tips for 6 hours! 📚",
+      "Export function is broken. The person who was supposed to fix it got distracted by a really interesting Wikipedia article! 🌐",
+      "Customization options are being worked on by someone who's been 'just checking' social media for 4 hours! 📱",
+      "Save feature is under maintenance. The developer is currently deep in a YouTube rabbit hole about ancient civilizations! 🏛️",
+      "Auto-refresh is being debugged by someone who's been 'quickly' browsing memes for the past 2 hours! 😂"
+    ];
+    
+    function showPopup(index) {
+      document.getElementById('popupText').textContent = popupMessages[index];
+      document.getElementById('popup').classList.add('show');
+    }
+    
+    function closePopup() {
+      document.getElementById('popup').classList.remove('show');
+    }
+    
+    // Close popup when clicking outside
+    document.getElementById('popup').addEventListener('click', function(e) {
+      if (e.target === this) closePopup();
+    });
+  </script>
+</body>
+</html>
+
+

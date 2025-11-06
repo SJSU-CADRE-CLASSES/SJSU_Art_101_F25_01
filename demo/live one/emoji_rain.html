@@ -1,0 +1,223 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Animal Emoji Rain</title>
+    <style>
+        body {
+            margin: 0;
+            padding: 0;
+            height: 100vh;
+            background: white;
+            overflow: hidden;
+            font-family: 'Arial', sans-serif;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .container {
+            text-align: center;
+            color: black;
+            z-index: 10;
+        }
+
+        h1 {
+            font-size: 3rem;
+            margin-bottom: 1rem;
+            text-shadow: 1px 1px 2px rgba(0,0,0,0.1);
+        }
+
+        .instructions {
+            font-size: 1.2rem;
+            opacity: 0.8;
+            margin-bottom: 2rem;
+        }
+
+        .status {
+            font-size: 1.5rem;
+            font-weight: bold;
+            padding: 1rem 2rem;
+            background: rgba(0,0,0,0.1);
+            border-radius: 25px;
+            border: 2px solid rgba(0,0,0,0.2);
+            cursor: pointer;
+        }
+
+        .emoji {
+            position: absolute;
+            pointer-events: none;
+            z-index: 1;
+            font-size: 2rem;
+            top: -50px;
+            left: 0px;
+        }
+
+        /* Different emoji sizes */
+        .emoji.small {
+            font-size: 1.5rem;
+        }
+
+        .emoji.medium {
+            font-size: 2rem;
+        }
+
+        .emoji.large {
+            font-size: 2.5rem;
+        }
+
+        .emoji.extra-large {
+            font-size: 3rem;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🐶🐱🐦🐟🐴🐰🐍🐢🦁🐯</h1>
+        <div class="instructions">Press SPACEBAR to start the emoji rain!</div>
+        <div class="status" id="status">Press SPACEBAR to start</div>
+    </div>
+
+    <script>
+        // Your emoji variables
+        let dog = "🐶";
+        let cat = "🐱";
+        let bird = "🐦";
+        let fish = "🐟";
+        let horse = "🐴";
+        let rabbit = "🐰";
+        let snake = "🐍";
+        let turtle = "🐢";
+        let lion = "🦁";
+        let tiger = "🐯";
+
+        // Array of all emojis
+        const emojis = [dog, cat, bird, fish, horse, rabbit, snake, turtle, lion, tiger];
+        
+        let isRaining = false;
+        let rainInterval;
+        let animationInterval;
+        const fallingEmojis = [];
+
+        function createEmoji() {
+            const emoji = document.createElement('div');
+            emoji.className = 'emoji';
+            
+            // Random emoji from your collection
+            const randomEmoji = emojis[Math.floor(Math.random() * emojis.length)];
+            emoji.textContent = randomEmoji;
+            
+            // Random size
+            const sizes = ['small', 'medium', 'large', 'extra-large'];
+            const randomSize = sizes[Math.floor(Math.random() * sizes.length)];
+            emoji.classList.add(randomSize);
+            
+            // Random horizontal position
+            const randomX = Math.random() * window.innerWidth;
+            emoji.style.left = randomX + 'px';
+            
+            // Random speed (2-7 seconds to fall)
+            const speed = 0.5 + Math.random() * 2; // pixels per frame (roughly 2-7 seconds)
+            
+            // Add to falling emojis array
+            fallingEmojis.push({
+                element: emoji,
+                y: -50,
+                speed: speed
+            });
+            
+            document.body.appendChild(emoji);
+            console.log('Created emoji, total falling:', fallingEmojis.length);
+        }
+
+        function animateEmojis() {
+            for (let i = fallingEmojis.length - 1; i >= 0; i--) {
+                const emojiData = fallingEmojis[i];
+                emojiData.y += emojiData.speed;
+                emojiData.element.style.top = emojiData.y + 'px';
+                
+                // Remove emoji when it goes off screen
+                if (emojiData.y > window.innerHeight + 50) {
+                    if (emojiData.element.parentNode) {
+                        emojiData.element.parentNode.removeChild(emojiData.element);
+                    }
+                    fallingEmojis.splice(i, 1);
+                }
+            }
+        }
+
+        function startRain() {
+            if (isRaining) return; // Prevent multiple starts
+            
+            isRaining = true;
+            document.getElementById('status').textContent = 'Emoji rain is ON! Press SPACEBAR to stop';
+            document.getElementById('status').style.background = 'rgba(255, 182, 193, 0.3)';
+            
+            // Start animation loop first
+            animationInterval = setInterval(animateEmojis, 16); // ~60fps
+            console.log('Animation started, fallingEmojis count:', fallingEmojis.length);
+            
+            // Create 500 emojis at once!
+            for (let i = 0; i < 500; i++) {
+                setTimeout(() => {
+                    createEmoji();
+                }, i * 10); // Stagger them slightly so they don't all appear at exactly the same time
+            }
+            
+            // Continue creating more emojis at random intervals
+            rainInterval = setInterval(() => {
+                createEmoji();
+            }, 100 + Math.random() * 200); // Random interval between 100-300ms
+        }
+
+        function stopRain() {
+            isRaining = false;
+            document.getElementById('status').textContent = 'Emoji rain is OFF. Press SPACEBAR to start';
+            document.getElementById('status').style.background = 'rgba(0,0,0,0.1)';
+            
+            if (rainInterval) clearInterval(rainInterval);
+            if (animationInterval) clearInterval(animationInterval);
+            
+            // Clear all falling emojis
+            fallingEmojis.forEach(emojiData => {
+                if (emojiData.element.parentNode) {
+                    emojiData.element.parentNode.removeChild(emojiData.element);
+                }
+            });
+            fallingEmojis.length = 0;
+        }
+
+        function toggleRain() {
+            if (isRaining) {
+                stopRain();
+            } else {
+                startRain();
+            }
+        }
+
+        // Make sure the page can receive focus
+        document.body.tabIndex = 0;
+        document.body.focus();
+
+        // Listen for spacebar press
+        document.addEventListener('keydown', (event) => {
+            if (event.code === 'Space' || event.key === ' ') {
+                event.preventDefault(); // Prevent page scroll
+                toggleRain();
+            }
+        });
+
+        // Also listen on window for better compatibility
+        window.addEventListener('keydown', (event) => {
+            if (event.code === 'Space' || event.key === ' ') {
+                event.preventDefault();
+                toggleRain();
+            }
+        });
+
+        // Also listen for clicks on the status div as an alternative
+        document.getElementById('status').addEventListener('click', toggleRain);
+    </script>
+</body>
+</html>
